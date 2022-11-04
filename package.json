@@ -1,0 +1,17 @@
+{
+    "name": "p5.palette",
+    "version": "0.1.0",
+    "description": "A p5.js library to manage color palettes",
+    "main": "dist/p5.palette.min.js",
+    "scripts": {},
+    "keywords": [],
+    "author": "Gustavo Mandolesi",
+    "license": "ISC",
+    "devDependencies": {
+        "grunt": "^1.5.3",
+        "grunt-contrib-concat": "^2.1.0",
+        "grunt-contrib-copy": "^1.0.0",
+        "grunt-contrib-uglify": "^5.2.2",
+        "grunt-contrib-watch": "^1.1.0"
+    }
+}
