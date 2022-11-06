@@ -51,13 +51,14 @@ let palette;
 function setup() {
     createCanvas(500, 500);
     palette = createPalette();
-    palette.add(color("#c0392b"));
-    palette.add(color(255, 204, 0));
-    palette.add(color("magenta"));
-    palette.add(color("#0f0"));
-    palette.add(color("rgb(0,0,255)"));
-    palette.add(color("hsl(160, 100%, 50%)"));
-    palette.add(color("hsb(160, 100%, 50%)"));    
+    palette
+        .add(color("#c0392b"))
+        .add(color(255, 204, 0))
+        .add(color("magenta"))
+        .add(color("#0f0"))
+        .add(color("rgb(0,0,255)"))
+        .add(color("hsl(160, 100%, 50%)"))
+        .add(color("hsb(160, 100%, 50%)"));  
 }
 
 function draw() {
@@ -80,13 +81,14 @@ function setup() {
   pixelDensity(1);
   createCanvas(400, 200);
   palette = createPalette();
-  palette.add(color("#c0392b"));
-  palette.add(color(255, 204, 0));
-  palette.add(color("magenta"));
-  palette.add(color("#0f0"));
-  palette.add(color("rgb(0,0,255)"));
-  palette.add(color("hsl(160, 100%, 50%)"));
-  palette.add(color("hsb(160, 100%, 50%)"));
+  palette
+    .add(color("#c0392b"))
+    .add(color(255, 204, 0))
+    .add(color("magenta"))
+    .add(color("#0f0"))
+    .add(color("rgb(0,0,255)"))
+    .add(color("hsl(160, 100%, 50%)"))
+    .add(color("hsb(160, 100%, 50%)"));  
 }
 
 function draw() {
@@ -110,15 +112,18 @@ function setup() {
   pixelDensity(1);
   createCanvas(400, 200);
   palette = createPalette();
-  palette.add(color("#c0392b"));
-  palette.add(color(255, 204, 0));
-  palette.add(color("magenta"));
-  palette.add(color("#0f0"));
-  palette.add(color("rgb(0,0,255)"));
-  palette.add(color("hsl(160, 100%, 50%)"));
-  palette.add(color("hsb(160, 100%, 50%)"));
+  palette
+    .add(color("#c0392b"))
+    .add(color(255, 204, 0))
+    .add(color("magenta"))
+    .add(color("#0f0"))
+    .add(color("rgb(0,0,255)"))
+    .add(color("hsl(160, 100%, 50%)"))
+    .add(color("hsb(160, 100%, 50%)"));  
   palette.log();
 }
 ```
 
-![Log](doc/img/log.png)
+The colors will be output on the browser console:
+
+![Log](doc/img/log.png) 
