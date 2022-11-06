@@ -127,4 +127,19 @@ function setup() {
 
 The colors will be output on the browser console:
 
-![Log](doc/img/log.png) 
+![Log](doc/img/log.png)
+
+## Loading palettes
+
+Besides creating your own color palette manually, it is possible to load existing palettes from third party sources.
+
+One way is to pass a string containg color hexadecimals to the constructor:
+
+```javascript
+let palette = createPalette('264653-2a9d8f-e9c46a-f4a261-e76f51');
+palette.draw();
+```
+
+![Color palette](doc/img/palette-hex-string.png)
+
+That is very useful for loading palettes chosen in sites like [Coolors](https://coolors.co/) and [poolors](https://poolors.com/), where you can copy the hexadecimals string from the palette URL.
