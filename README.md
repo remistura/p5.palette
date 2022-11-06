@@ -1,12 +1,15 @@
 # p5.palette
 
-This is a **p5.js** library to manage color palettes for fast prototyping and easy development of creative visual applications.
+A JavaScript library for color palette management in p5.js.
 
-It is strongly inspired on [colorLib](https://github.com/vormplus/colorLib), a [Processing](https://processing.org/) library to work with colors. 
+## Introduction
 
-I used to use colorLib in my sketches in Processing, and when I started developing in p5.js I felt a lack of a similar tool, so I developed one with some features that I created based on my needs.
+This is a [p5.js](https://p5js.org/) library to manage color palettes for fast prototyping and easy development of creative visual applications.
 
-**p5.palette** allows you to create and manipulate color palettes in a very dynamic way, helping in the development of creative coding applications with aesthetics and color harmony, in a very fast pace.
+![Color palette](doc/img/palette.png)
 
-nvm use 18
-grunt watch
+It is strongly inspired by [colorLib](https://github.com/vormplus/colorLib) library for [Processing](https://processing.org/). 
+
+p5.js missed something similar, so while converting some sketches from Processing (Java) to p5.js (JavaScript), I could neatly extract and migrate features from some hacks I had done in colorLib for personal usage, all joined in **p5.palette**.
+
+The library allows you to create and manipulate color palettes in a very dynamic way, helping develop creative coding applications with color harmony, aesthetics, in a very fast pace.
