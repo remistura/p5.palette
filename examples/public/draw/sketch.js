@@ -1,14 +1,61 @@
+const COLORS = "e3e7af-a2a77f-eff1c5-035e7b-002e2c";
+
 function setup() {
-  createCanvas(500, 500);
+  createCanvas(500, 750);
 }
 
 function draw() {
   background(127);
 
-  let y = 10;
+  let palette = createPalette(COLORS);
+  palette.draw();
 
-  let palette = createPalette("8e44ad-3498db-2ecc71-f1c40f-e67e22-c0392b");
-  palette.draw({ x: 10, y, drawBorder: true, borderWeight: 2 });
+  let x = 25;
+  let y = 75;
+  palette = createPalette(COLORS);
+  palette.draw({ x, y });
+
+  y += 75;
+  palette = createPalette(COLORS);
+  palette.draw({ x, y, width: 25 });
+
+  y += 75;
+  palette = createPalette(COLORS);
+  palette.draw({ x, y, height: 25 });
+
+  y += 50;
+  palette = createPalette(COLORS);
+  palette.draw({ x, y, width: 50, height: 50, drawBorder: true });
+
+  y += 75;
+  palette = createPalette(COLORS);
+  palette.draw({ x, y, width: 50, height: 50, drawBorder: true, borderWeight: 5 });
+
+  y += 75;
+  palette = createPalette(COLORS);
+  palette.draw({ x, y, width: 50, height: 50, drawBorder: true, borderColor: color(0, 255, 0), borderWeight: 5 });
+
+  y += 75;
+  palette = createPalette(COLORS);
+  palette.draw({ x, y, width: 50, height: 50, offset: 20 });
+
+  y += 75;
+  palette = createPalette(COLORS);
+  palette.draw({ x, y, width: 50, height: 50, offset: 20, drawBorder: true, borderWeight: 10, showCursor: false, showIndex: true });
+
+  y += 75;
+  palette = createPalette(COLORS);
+  palette.draw({ x, y, width: 50, height: 50, showIndex: true });
+
+  y = 25;
+  palette = createPalette(COLORS);
+  palette.draw({ x: 300, y, width: 50, height: 50, vertical: true});
+
+  palette = createPalette(COLORS);
+  palette.draw({ x: 370, y, width: 50, height: 50, offset: 10, vertical: true});
+
+  palette = createPalette(COLORS);
+  palette.draw({ x: 440, y, width: 50, height: 50, showCursor: true, showIndex: true, vertical: true});
 
   noLoop();
 }
