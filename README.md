@@ -2,11 +2,11 @@
 
 A JavaScript library for color palette management in [p5.js](https://p5js.org/).
 
+![Color palette](doc/img/palette.png)
+
 ## Introduction
 
 This library helps fast prototyping creative visual applications by providing functions to generate and manage color palettes.
-
-![Color palette](doc/img/palette.png)
 
 It is strongly inspired by [colorLib](https://github.com/vormplus/colorLib) library for [Processing](https://processing.org/). 
 
