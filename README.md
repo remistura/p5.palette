@@ -99,6 +99,7 @@ function draw() {
 ```
 
 It will plot a rectangle for each color:
+
 ![Color palette](doc/img/palette-add.png)
 
 That is useful for inpecting the palette, but you might not want plotted in your sketch.
