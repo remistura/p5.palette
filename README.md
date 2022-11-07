@@ -23,9 +23,65 @@ Please download the latest `p5.palette.min.js` release from the [lib](https://gi
 <script type="text/javascript" src="path-to/p5.palette.min.js"></script>
 ```
 
-## Usage
+## Palette class
 
-The library provides a `Palette` class to used in p5.js, and each object instance represents a finite collection of colors.
+The library provides a `Palette` class that represents a finite collection of colors.
+
+![Color palette](doc/img/palette-class.png)
+
+Internally, each color has an index number, starting from zero:
+
+![Color palette](doc/img/palette-class-index.png)
+
+It is possible to use colors through their index with the `get()` function:
+
+```javascript
+const col = palette.get(2);
+fill(col);
+```
+
+One important aspect of the Palette class is that there is a cursor that points to one color, with will be the "selected" one. The cursor always starts at the first color (index zero):
+
+![Color palette](doc/img/palette-class-index-cursor.png)
+
+The Palette class has some methods to get the current selected color.
+
+One of the most commonly used is the `next()` function:
+
+```javascript
+const col1 = palette.next();
+fill(col1);
+```
+
+It will return the current selected color and move the cursor to the next one.
+
+![Color palette](doc/img/palette-class-index-cursor-next1.png)
+
+Calling `next()` once again will return the color at index 1 and step the cursor to index 2.
+
+```javascript
+const col2 = palette.next();
+stroke(col2);
+```
+
+![Color palette](doc/img/palette-class-index-cursor-next2.png)
+
+When `next()` is invoked more times and the cursor gets to the index of the last color, it will be set back to zero when `next()` is called again.
+
+There's a `previous()` method as well, with similar behavior, providing the current selected color and moving down the cursor to the color at previous index value.
+
+When the cursor is at the first color, calling `previous()` will move it up to the last color (the one with the highest index).
+
+If you want to get the current selected color without affecting the cursor position, simply call `get()` without arguments:
+
+```javascript
+const bkgColor = palette.get();
+background(bkgColor);
+```
+
+Using `get()` will return always the single selected color at the time.
+
+## Create palette
 
 The most basic way to create a Palette is:
 
