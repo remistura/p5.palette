@@ -1,22 +1,24 @@
 let paletteAsync, paletteSync;
 
-function preload() { console.log('preload')
+function preload() {
   // Load palette synchronously
   paletteSync = loadRandomColormindPalette();
 }
 
-function setup() { console.log('setup')
-  createCanvas(250, 255);
+function setup() {
+  createCanvas(500, 500);
+  background(0, 25);
+
   // Load palette asynchronously (using callback function)
   loadRandomColormindPalette(paletteLoaded);
   noLoop();
 }
 
-function draw() { console.log('draw')
+function draw() {
   if (!isLooping()) return;
-  background(127);
+
   paletteSync.draw();
-  paletteAsync.draw({ y: 50 });
+  paletteAsync.draw({ y: 75 });
   noLoop();
 }
 

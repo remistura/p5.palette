@@ -22,11 +22,6 @@ p5.prototype.createGrayscalePalette = ({ amount = 5, end = 255, start = 0 } = {}
   return this.createGradientPalette({ amount, end: to, start: from });
 };
 
-/**
- * Creates a new color palette object
- * @param {*} args
- * @returns Palette
- */
 p5.prototype.createPalette = (args) => {
   let colors = [];
   if (Array.isArray(args)) {
@@ -50,16 +45,7 @@ p5.prototype.createRandomPalette = (num, fn) => {
   return createPalette(colors);
 }
 
-/**
- * Load color palette from Colormind API
- *
- * @param {*} successCallback
- * @param {*} failureCallback
- * @returns
- */
 p5.prototype.loadRandomColormindPalette = function (successCallback, failureCallback) {
-  const self = this;
-
   const data = {
     model: "default",
   };
@@ -68,13 +54,13 @@ p5.prototype.loadRandomColormindPalette = function (successCallback, failureCall
   const _paletteFromRequest = (request) => {
     const json = JSON.parse(request.response);
     if (json.result) {
-      const palette = self.createPalette();
+      const palette = this.createPalette();
       json.result.forEach((rgb) => {
-        palette.add(self.color(rgb));
+        palette.add(this.color(rgb));
       });
-      if (typeof self._decrementPreload === "function") {
-        self._decrementPreload();
-      }
+      // if (typeof this._decrementPreload === "function") {
+      //   this._decrementPreload();
+      // }
       return palette;
     }
     return null;
@@ -98,26 +84,18 @@ p5.prototype.loadRandomColormindPalette = function (successCallback, failureCall
   request.send(JSON.stringify(data));
   if (request.readyState === 4 && request.status === 200) {
     const palette = _paletteFromRequest(request);
-    if (palette) return palette;
+    if (palette) {
+      if (typeof this._decrementPreload === "function") {
+        this._decrementPreload();
+      }
+      return palette;
+    }
     // EXCEPTION
   } else {
     // EXCEPTION
   }
 };
 p5.prototype.registerPreloadMethod("loadRandomColormindPalette", p5.prototype);
-
-const createPaletteFromColourLoversJsonp = (url) => {
-  return new Promise(function (resolve, reject) {
-    httpDo(url, "jsonp", { jsonpCallback: "jsonCallback" }).then((data) => {
-      const palette = new Palette(this);
-      console.log(data);
-      data[0].colors.forEach((hex) => {
-        palette.add(this.color(`#${hex}`));
-      });
-      resolve(palette);
-    });
-  });
-};
 
 p5.prototype.loadRandomColourLoversPalette = (callback) => {
   const retPalette = createPalette();
@@ -137,14 +115,14 @@ p5.prototype.loadRandomColourLoversPalette = (callback) => {
 p5.prototype.registerPreloadMethod("loadRandomColourLoversPalette", p5.prototype);
 
 p5.prototype.storePalette = (palette) => {
-  const self = this;
+  if (!palette || palette.size() < 1) return; // TESTE
   const str = palette.toHexString();
-  let palettesArray = self.loadStoredStrings();
+  let palettesArray = this.loadStoredStrings();
   if (!palettesArray) {
     palettesArray = [];
   }
   palettesArray.push(str);
-  self.storeItem(STORAGE_KEY, JSON.stringify(palettesArray));
+  this.storeItem(STORAGE_KEY, JSON.stringify(palettesArray));
 };
 
 p5.prototype.loadStoredPalettes = () => {
@@ -180,4 +158,17 @@ p5.prototype.exportStoredPalettes = () => {
   contents = contents.slice(0, -1);
   contents += "];";
   this.saveStrings([contents], "exported-palettes", "js");
+};
+
+const createPaletteFromColourLoversJsonp = (url) => {
+  return new Promise(function (resolve, reject) {
+    httpDo(url, "jsonp", { jsonpCallback: "jsonCallback" }).then((data) => {
+      const palette = new Palette(this);
+      console.log(data);
+      data[0].colors.forEach((hex) => {
+        palette.add(this.color(`#${hex}`));
+      });
+      resolve(palette);
+    });
+  });
 };
