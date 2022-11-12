@@ -58,9 +58,6 @@ p5.prototype.loadRandomColormindPalette = function (successCallback, failureCall
       json.result.forEach((rgb) => {
         palette.add(this.color(rgb));
       });
-      // if (typeof this._decrementPreload === "function") {
-      //   this._decrementPreload();
-      // }
       return palette;
     }
     return null;
@@ -115,7 +112,7 @@ p5.prototype.loadRandomColourLoversPalette = (callback) => {
 p5.prototype.registerPreloadMethod("loadRandomColourLoversPalette", p5.prototype);
 
 p5.prototype.storePalette = (palette) => {
-  if (!palette || palette.size() < 1) return; // TESTE
+  if (!palette || palette.size() < 1) return;
   const str = palette.toHexString();
   let palettesArray = this.loadStoredStrings();
   if (!palettesArray) {

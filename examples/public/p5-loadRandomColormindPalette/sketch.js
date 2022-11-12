@@ -18,7 +18,7 @@ function draw() {
   if (!isLooping()) return;
 
   paletteSync.draw();
-  paletteAsync.draw({ y: 75 });
+  paletteAsync.draw({ y: 50 });
   noLoop();
 }
 

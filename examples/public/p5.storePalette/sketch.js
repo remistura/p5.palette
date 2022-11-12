@@ -1,19 +1,19 @@
 let palette;
 
-function preload() { console.log('--- preload ----')
+function preload() {
   palette = loadRandomColormindPalette();
-  console.log({palette})
 }
 
-function setup() { console.log('--- setup ---')
+function setup() {
   createCanvas(500, 500);
   background(0, 25);
-  
 }
 
 function draw() {
-  console.log('--- draw ---')
   palette.draw();
+
+  // Store palette in browser's local storage
   storePalette(palette);
+  
   noLoop();
 }
