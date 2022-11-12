@@ -1,7 +1,7 @@
 let palette;
 
 function preload() {
-  palette = loadRandomColormindPalette();
+  palette = loadColormindPalette();
 }
 
 function setup() {
