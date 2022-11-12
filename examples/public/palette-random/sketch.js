@@ -2,7 +2,7 @@ let palette, grid;
 
 function setup() {
   createCanvas(500, 500);
-  background(0, 0, 0, 24);
+  background(0, 25);
 
   palette = loadRandomColormindPalette();
   palette.setWeights([0.1, 0.1, 0.1, 0.1, 1]);

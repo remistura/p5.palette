@@ -38,6 +38,12 @@ module.exports = function (grunt) {
             cwd: "lib/",
             src: ["p5.palette.min.js"],
             dest: "examples/public/lib",
+          },
+          {
+            expand: true,
+            cwd: "lib/",
+            src: ["p5.palette.js"],
+            dest: "examples/public/lib",
           },          
         ],
       },
