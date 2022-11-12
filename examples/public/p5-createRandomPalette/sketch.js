@@ -1,9 +1,8 @@
 let palette, grid;
 
 function setup() {
-  console.log("--- setup ---");
   createCanvas(500, 500);
-  background(0, 0, 0, 24);
+  background(0, 25);
 
   palette = loadColormindPalette();
   palette.log(false);
