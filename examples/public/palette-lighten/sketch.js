@@ -13,7 +13,7 @@ function draw() {
 
   for (let i = 0; i < total; i++) {
     y += 30;
-    palette.darken();
+    palette.lighten();
     palette.draw({ x: 10, y, height: 25, drawBorder: true, borderWeight: 2 });
   }
 
