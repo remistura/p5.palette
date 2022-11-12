@@ -497,14 +497,14 @@ p5.prototype.clearStoredPalettes = () => {
 };
 
 p5.prototype.exportStoredPalettes = () => {
-  let contents = "const palettes = [";
-  const strs = self.loadStoredStrings();
-  strs.forEach((value) => {
+  let contents = "const hexPalettes = [";
+  const hexStringsArray = loadStoredHexStrings();
+  hexStringsArray.forEach((value) => {
     contents += `'${value}',`;
   });
   contents = contents.slice(0, -1);
   contents += "];";
-  this.saveStrings([contents], "exported-palettes", "js");
+  this.saveStrings([contents], "palettes-exported", "js");
 };
 
 const createPaletteFromColourLoversJsonp = (url) => {
