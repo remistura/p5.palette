@@ -2,6 +2,10 @@ function invalidValue(name, value) {
   throw new Error(`Invalid ${name} value: ${value}`);
 }
 
+p5.prototype.clearStoredPalettes = () => {
+  return this.removeItem(STORAGE_KEY);
+};
+
 p5.prototype.createGradientPalette = ({ amount = 5, end = this.color(0), start = this.color(255) } = {}) => {
   const colors = [];
   const from = start;
@@ -43,6 +47,17 @@ p5.prototype.createRandomPalette = (num, fn) => {
     colors.push(this.color(rnd() * 255, rnd() * 255, rnd() * 255));
   }
   return createPalette(colors);
+};
+
+p5.prototype.exportStoredPalettes = () => {
+  let contents = "const hexPalettes = [";
+  const hexStringsArray = loadStoredHexStrings();
+  hexStringsArray.forEach((value) => {
+    contents += `'${value}',`;
+  });
+  contents = contents.slice(0, -1);
+  contents += "];";
+  this.saveStrings([contents], "palettes-exported", "js");
 };
 
 p5.prototype.loadColormindPalette = function (successCallback, failureCallback) {
@@ -110,21 +125,6 @@ p5.prototype.loadColourLoversPalette = (callback) => {
   return retPalette;
 };
 p5.prototype.registerPreloadMethod("loadColourLoversPalette", p5.prototype);
-
-p5.prototype.clearStoredPalettes = () => {
-  this.removeItem(STORAGE_KEY);
-};
-
-p5.prototype.exportStoredPalettes = () => {
-  let contents = "const hexPalettes = [";
-  const hexStringsArray = loadStoredHexStrings();
-  hexStringsArray.forEach((value) => {
-    contents += `'${value}',`;
-  });
-  contents = contents.slice(0, -1);
-  contents += "];";
-  this.saveStrings([contents], "palettes-exported", "js");
-};
 
 p5.prototype.loadStoredPalettes = () => {
   const hexStringsArray = loadStoredHexStrings();
