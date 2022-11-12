@@ -2,7 +2,7 @@ let palette;
 
 function setup() {
   createCanvas(250, 255);
-  loadRandomColourLoversPalette(paletteLoaded);
+  loadColourLoversPalette(paletteLoaded);
   noLoop();
 }
 

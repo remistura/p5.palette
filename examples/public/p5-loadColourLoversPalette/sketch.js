@@ -2,13 +2,13 @@ let paletteAsync, paletteSync;
 
 async function preload() {
   console.log('--- preload ---')
-  paletteSync = loadRandomColourLoversPalette();
+  paletteSync = loadColourLoversPalette();
 }
 
 async function setup() {
   console.log('--- setup ---')
   createCanvas(250, 255);
-  loadRandomColourLoversPalette(paletteLoaded);
+  loadColourLoversPalette(paletteLoaded);
   noLoop();
 }
 

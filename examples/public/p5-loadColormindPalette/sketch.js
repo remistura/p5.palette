@@ -2,7 +2,7 @@ let paletteAsync, paletteSync;
 
 function preload() {
   // Load palette synchronously
-  paletteSync = loadRandomColormindPalette();
+  paletteSync = loadColormindPalette();
 }
 
 function setup() {
@@ -10,7 +10,7 @@ function setup() {
   background(0, 25);
 
   // Load palette asynchronously (using callback function)
-  loadRandomColormindPalette(paletteLoaded);
+  loadColormindPalette(paletteLoaded);
   noLoop();
 }
 

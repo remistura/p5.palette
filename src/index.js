@@ -43,9 +43,9 @@ p5.prototype.createRandomPalette = (num, fn) => {
     colors.push(this.color(rnd() * 255, rnd() * 255, rnd() * 255));
   }
   return createPalette(colors);
-}
+};
 
-p5.prototype.loadRandomColormindPalette = function (successCallback, failureCallback) {
+p5.prototype.loadColormindPalette = function (successCallback, failureCallback) {
   const data = {
     model: "default",
   };
@@ -92,9 +92,9 @@ p5.prototype.loadRandomColormindPalette = function (successCallback, failureCall
     // EXCEPTION
   }
 };
-p5.prototype.registerPreloadMethod("loadRandomColormindPalette", p5.prototype);
+p5.prototype.registerPreloadMethod("loadColormindPalette", p5.prototype);
 
-p5.prototype.loadRandomColourLoversPalette = (callback) => {
+p5.prototype.loadColourLoversPalette = (callback) => {
   const retPalette = createPalette();
   createPaletteFromColourLoversJsonp(COLOURLOVERS_API_URL + this.random(50)).then((palette) => {
     for (let i = 0; i < palette.size(); i++) {
@@ -109,30 +109,7 @@ p5.prototype.loadRandomColourLoversPalette = (callback) => {
   });
   return retPalette;
 };
-p5.prototype.registerPreloadMethod("loadRandomColourLoversPalette", p5.prototype);
-
-p5.prototype.storePalette = (palette) => {
-  if (!palette || palette.size() < 1) return;
-  const str = palette.toHexString();
-  let hexStringsArray = loadStoredHexStrings();
-  if (!hexStringsArray) {
-    hexStringsArray = [];
-  }
-  hexStringsArray.push(str);
-  this.storeItem(STORAGE_KEY, JSON.stringify(hexStringsArray));
-};
-
-p5.prototype.loadStoredPalettes = () => {
-  const hexStringsArray = loadStoredHexStrings();
-  if (hexStringsArray) {
-    const palettes = [];
-    hexStringsArray.forEach((value) => {
-      palettes.push(this.createPalette(value));
-    });
-    return palettes;
-  }
-  return null;
-};
+p5.prototype.registerPreloadMethod("loadColourLoversPalette", p5.prototype);
 
 p5.prototype.clearStoredPalettes = () => {
   this.removeItem(STORAGE_KEY);
@@ -147,6 +124,29 @@ p5.prototype.exportStoredPalettes = () => {
   contents = contents.slice(0, -1);
   contents += "];";
   this.saveStrings([contents], "palettes-exported", "js");
+};
+
+p5.prototype.loadStoredPalettes = () => {
+  const hexStringsArray = loadStoredHexStrings();
+  if (hexStringsArray) {
+    const palettes = [];
+    hexStringsArray.forEach((value) => {
+      palettes.push(this.createPalette(value));
+    });
+    return palettes;
+  }
+  return null;
+};
+
+p5.prototype.storePalette = (palette) => {
+  if (!palette || palette.size() < 1) return;
+  const str = palette.toHexString();
+  let hexStringsArray = loadStoredHexStrings();
+  if (!hexStringsArray) {
+    hexStringsArray = [];
+  }
+  hexStringsArray.push(str);
+  this.storeItem(STORAGE_KEY, JSON.stringify(hexStringsArray));
 };
 
 const createPaletteFromColourLoversJsonp = (url) => {

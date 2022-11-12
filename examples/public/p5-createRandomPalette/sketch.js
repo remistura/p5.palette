@@ -5,7 +5,7 @@ function setup() {
   createCanvas(500, 500);
   background(0, 0, 0, 24);
 
-  palette = loadRandomColormindPalette();
+  palette = loadColormindPalette();
   palette.log(false);
 
   grid = new Grid(this, 50, 105, 400, 350, 11, 13);
