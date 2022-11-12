@@ -126,15 +126,20 @@ p5.prototype.loadColourLoversPalette = (callback) => {
 };
 p5.prototype.registerPreloadMethod("loadColourLoversPalette", p5.prototype);
 
-p5.prototype.loadStoredPalettes = () => {
-  const hexStringsArray = loadStoredHexStrings();
-  if (hexStringsArray) {
+p5.prototype.loadPalettes = (hexStringArray) => {
+  if (hexStringArray) {
     const palettes = [];
-    hexStringsArray.forEach((value) => {
+    hexStringArray.forEach((value) => {
       palettes.push(this.createPalette(value));
     });
     return palettes;
   }
+  return null;
+};
+
+p5.prototype.loadStoredPalettes = () => {
+  const hexStringsArray = loadStoredHexStrings();
+  if (hexStringsArray) return this.loadPalettes(hexStringsArray);
   return null;
 };
 
