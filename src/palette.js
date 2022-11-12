@@ -24,6 +24,7 @@ class Palette {
       newColors.push(analogous.get(i * 2 + 1));
     }
     this.colors = Array.from(newColors);
+    return this;
   }
 
   addComplementaryColors() {
@@ -34,6 +35,7 @@ class Palette {
       newColors.push(complementary.get(i));
     }
     this.colors = Array.from(newColors);
+    return this;
   }
 
   addSplitComplementaryColors() {
@@ -45,6 +47,7 @@ class Palette {
       newColors.push(complementary.get(i * 2 + 1));
     }
     this.colors = Array.from(newColors);
+    return this;
   }
 
   addTriadicColors() {
@@ -56,11 +59,11 @@ class Palette {
       newColors.push(triadic.get(i * 2 + 1));
     }
     this.colors = Array.from(newColors);
+    return this;
   }
 
   clone() {
-    const newPalette = this.P.createPalette(this.colors);
-    return newPalette;
+    return this.P.createPalette(this.colors);
   }
 
   current() {
@@ -77,6 +80,7 @@ class Palette {
     }
     this.colors = Array.from(newColors);
     this.P.pop();
+    return this;
   }
 
   draw(args) {
@@ -199,6 +203,7 @@ class Palette {
     }
     this.colors = Array.from(newColors);
     this.P.pop();
+    return this;
   }
 
   log(horizontal = true) {
