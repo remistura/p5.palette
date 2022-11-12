@@ -39,6 +39,17 @@ p5.prototype.createPalette = (args) => {
   return new Palette(this, colors);
 };
 
+p5.prototype.createRandomPalette = (num, fn) => {
+  // TODO: Improve arguments validation
+  const total = num || 5;
+  const rnd = fn || this.random;
+  const colors = [];
+  for (let i = 0; i < total; i++) {
+    colors.push(this.color(rnd() * 255, rnd() * 255, rnd() * 255));
+  }
+  return createPalette(colors);
+}
+
 /**
  * Load color palette from Colormind API
  *
@@ -92,7 +103,7 @@ p5.prototype.loadRandomColormindPalette = function (successCallback, failureCall
   } else {
     // EXCEPTION
   }
-}; 
+};
 p5.prototype.registerPreloadMethod("loadRandomColormindPalette", p5.prototype);
 
 const createPaletteFromColourLoversJsonp = (url) => {

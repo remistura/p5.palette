@@ -6,6 +6,8 @@ class Palette {
     this.P = P;
     this.colors = colors || [];
     this.index = 0;
+    this.weighted = [];
+    this.weights = [];
   }
 
   add(color) {
@@ -54,44 +56,6 @@ class Palette {
       newColors.push(triadic.get(i * 2 + 1));
     }
     this.colors = Array.from(newColors);
-  }
-
-  getAnalogous() {
-    const newColors = [];
-    this.colors.forEach((col) => {
-      const [a1, a2] = this.#getAnalogous(col);
-      newColors.push(a1);
-      newColors.push(a2);
-    });
-    return new Palette(this.P, newColors);
-  }
-
-  getComplementary() {
-    const newColors = [];
-    this.colors.forEach((col) => {
-      newColors.push(this.#getComplementary(col));
-    });
-    return new Palette(this.P, newColors);
-  }
-
-  getSplitComplementary() {
-    const newColors = [];
-    this.colors.forEach((col) => {
-      const [s1, s2] = this.#getSplitComplementary(col);
-      newColors.push(s1);
-      newColors.push(s2);
-    });
-    return new Palette(this.P, newColors);
-  }
-
-  getTriadic() {
-    const newColors = [];
-    this.colors.forEach((col) => {
-      const [t1, t2] = this.#getTriadic(col);
-      newColors.push(t1);
-      newColors.push(t2);
-    });
-    return new Palette(this.P, newColors);
   }
 
   clone() {
@@ -187,6 +151,44 @@ class Palette {
     return this.colors[this.index];
   }
 
+  getAnalogous() {
+    const newColors = [];
+    this.colors.forEach((col) => {
+      const [a1, a2] = this.#getAnalogous(col);
+      newColors.push(a1);
+      newColors.push(a2);
+    });
+    return new Palette(this.P, newColors);
+  }
+
+  getComplementary() {
+    const newColors = [];
+    this.colors.forEach((col) => {
+      newColors.push(this.#getComplementary(col));
+    });
+    return new Palette(this.P, newColors);
+  }
+
+  getSplitComplementary() {
+    const newColors = [];
+    this.colors.forEach((col) => {
+      const [s1, s2] = this.#getSplitComplementary(col);
+      newColors.push(s1);
+      newColors.push(s2);
+    });
+    return new Palette(this.P, newColors);
+  }
+
+  getTriadic() {
+    const newColors = [];
+    this.colors.forEach((col) => {
+      const [t1, t2] = this.#getTriadic(col);
+      newColors.push(t1);
+      newColors.push(t2);
+    });
+    return new Palette(this.P, newColors);
+  }
+
   lighten() {
     this.P.push();
     this.P.colorMode(HSB);
@@ -199,12 +201,8 @@ class Palette {
     this.P.pop();
   }
 
-  log() {
-    this.colors.forEach((col) => {
-      const value = col.toString("#rrggbb");
-      const style = `background: #222; color: ${value}`;
-      console.log(`%c%s%c %s`, style, "■■■■■■■■■■■■■■■■■■■■", "color:gray", `${value}`);
-    });
+  log(horizontal = true) {
+    horizontal ? this.#logHorizontal() : this.#logVertical();
   }
 
   next() {
@@ -221,6 +219,15 @@ class Palette {
     return this.colors[this.index];
   }
 
+  random(fn) {
+    if (this.colors.length < 1) return undefined;
+    const rnd = fn || this.P.random;
+    if (this.weights.length === 0) {
+      this.setWeights(new Array(this.colors.length).fill(1));
+    }
+    return this.weighted[Math.floor(rnd() * this.weighted.length)];
+  }
+
   reset() {
     this.index = 0;
   }
@@ -229,12 +236,17 @@ class Palette {
     this.colors.reverse();
   }
 
+  setWeights(weights) {
+    this.weights = weights;
+    this.weighted = this.#weight(this.colors);
+  }
+
   size() {
     return this.colors.length;
   }
 
-  shuffle(func) {
-    const rnd = func || Math.random;
+  shuffle(fn) {
+    const rnd = fn || this.P.random;
     this.colors = this.colors.sort(() => rnd() - 0.5);
   }
 
@@ -307,5 +319,34 @@ class Palette {
     const t2 = this.P.color((this.P.hue(col) + 240) % 360, this.P.saturation(col), this.P.brightness(col));
     this.P.pop();
     return [t1, t2];
+  }
+
+  #logHorizontal() {
+    let str = "";
+    let values = "";
+    let args = [];
+    for (let i = 0; i < this.size(); i++) {
+      str = str + "%c%s";
+      let col = this.colors[i];
+      const value = col.toString("#rrggbb");
+      const style = `color: ${value}`;
+      args.push(style);
+      args.push("■■■■■■■■■");
+      values += ` ${value} `;
+    }
+    console.log(str, ...args);
+    console.log(`%c%s`, "color:gray", values);
+  }
+
+  #logVertical() {
+    this.colors.forEach((col) => {
+      const value = col.toString("#rrggbb");
+      const style = `background: #222; color: ${value}`;
+      console.log(`%c%s%c %s`, style, "■■■■■■■■■■■■■■■■■■■■", "color:gray", `${value}`);
+    });
+  }
+
+  #weight(arr) {
+    return [].concat(...arr.map((col, index) => Array(Math.ceil(this.weights[index] * 100)).fill(col)));
   }
 }
