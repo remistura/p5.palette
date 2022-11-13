@@ -5,7 +5,7 @@ class Palette {
   constructor(P, colors) {
     this.P = P;
     this.colors = colors || [];
-    this.index = 0;
+    this.index = this.colors.length ? 0 : -1;
     this.weighted = [];
     this.weights = [];
   }
@@ -44,20 +44,6 @@ class Palette {
     return this;
   }
 
-  insertGradients(amount = 5) {
-    const palettes = [];
-    for (let i = 0; i < this.size() - 1; i++) {
-      const start = this.get(i);
-      const end = this.get(i + 1);
-      palettes.push(createGradientPalette({ amount, start, end }));
-    }
-    const start = this.get(this.size() - 1);
-    const end = this.get(0);
-    palettes.push(createGradientPalette({ amount, start, end }));
-
-
-  }
-
   addSplitComplementaryColors() {
     const complementary = this.getSplitComplementary();
     const newColors = [];
@@ -80,6 +66,13 @@ class Palette {
     }
     this.colors = Array.from(newColors);
     return this;
+  }
+
+  clear() {
+    this.colors = [];
+    this.index = -1;
+    this.weighted = [];
+    this.weights = [];
   }
 
   clone() {
@@ -176,6 +169,10 @@ class Palette {
     return this.colors[this.index];
   }
 
+  getColors() {
+    return this.colors;
+  }
+
   getAnalogous() {
     const newColors = [];
     this.colors.forEach((col) => {
@@ -212,6 +209,26 @@ class Palette {
       newColors.push(t2);
     });
     return new Palette(this.P, newColors);
+  }
+
+  insertGradients(amount = 5, loop = false) {
+    const palettes = [];
+    for (let i = 0; i < this.size() - 1; i++) {
+      const start = this.get(i);
+      const end = this.get(i + 1);
+      palettes.push(createGradientPalette({ amount, start, end }));
+    }
+    if (loop) {
+      const start = this.get(this.size() - 1);
+      const end = this.get(0);
+      palettes.push(createGradientPalette({ amount, start, end }));
+    }
+    this.clear();
+    palettes.forEach((pal) => {
+      pal.remove(pal.size() - 1);
+      this.colors = this.colors.concat(pal.getColors());
+    });
+    return this;
   }
 
   lighten() {
