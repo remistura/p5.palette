@@ -1,9 +1,9 @@
 function setup() {
-  createCanvas(280, 255);
+  createCanvas(500, 500);
+  background(0, 25);
 }
 
 function draw() {
-  background(127);
 
   // Create an empty palette
   const emptyPalette = createPalette();
