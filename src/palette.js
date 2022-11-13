@@ -5,13 +5,19 @@ class Palette {
   constructor(P, colors) {
     this.P = P;
     this.colors = colors || [];
-    this.index = 0;
+    this.index = this.colors.length ? 0 : -1;
     this.weighted = [];
     this.weights = [];
   }
 
-  add(color) {
-    this.colors.push(color);
+  add(arg) {
+    if (arg instanceof Palette) {
+      for (let i = 0; i < arg.size(); i++) {
+        this.colors.push(arg.get(i));
+      }
+    } else {
+      this.colors.push(arg);
+    }
     return this;
   }
 
@@ -60,6 +66,13 @@ class Palette {
     }
     this.colors = Array.from(newColors);
     return this;
+  }
+
+  clear() {
+    this.colors = [];
+    this.index = -1;
+    this.weighted = [];
+    this.weights = [];
   }
 
   clone() {
@@ -148,11 +161,16 @@ class Palette {
     }
 
     this.P.pop();
+    return this;
   }
 
   get(ix) {
     if (ix) return this.colors[ix];
     return this.colors[this.index];
+  }
+
+  getColors() {
+    return this.colors;
   }
 
   getAnalogous() {
@@ -191,6 +209,26 @@ class Palette {
       newColors.push(t2);
     });
     return new Palette(this.P, newColors);
+  }
+
+  insertGradients(amount = 5, loop = false) {
+    const palettes = [];
+    for (let i = 0; i < this.size() - 1; i++) {
+      const start = this.get(i);
+      const end = this.get(i + 1);
+      palettes.push(createGradientPalette({ amount, start, end }));
+    }
+    if (loop) {
+      const start = this.get(this.size() - 1);
+      const end = this.get(0);
+      palettes.push(createGradientPalette({ amount, start, end }));
+    }
+    this.clear();
+    palettes.forEach((pal) => {
+      pal.remove(pal.size() - 1);
+      this.colors = this.colors.concat(pal.getColors());
+    });
+    return this;
   }
 
   lighten() {
@@ -233,12 +271,28 @@ class Palette {
     return this.weighted[Math.floor(rnd() * this.weighted.length)];
   }
 
+  remove(ix) {
+    this.colors.splice(ix, 1);
+    if (this.index >= this.colors.length) {
+      this.index = this.colors.length - 1;
+    }
+    return this;
+  }
+
   reset() {
     this.index = 0;
+    return this;
   }
 
   reverse() {
     this.colors.reverse();
+    return this;
+  }
+
+  set(ix) {
+    if (ix < 0 || ix >= this.colors.length) return;
+    this.index = ix;
+    return this;
   }
 
   setWeights(weights) {
@@ -253,24 +307,28 @@ class Palette {
   shuffle(fn) {
     const rnd = fn || this.P.random;
     this.colors = this.colors.sort(() => rnd() - 0.5);
+    return this;
   }
 
   sortByBrightness() {
     this.colors = this.colors.sort((a, b) => {
       return this.P.brightness(a) === this.P.brightness(b) ? 0 : this.P.brightness(a) > this.P.brightness(b) ? 1 : -1;
     });
+    return this;
   }
 
   sortByLightness() {
     this.colors = this.colors.sort((a, b) => {
       return this.P.lightness(a) === this.P.lightness(b) ? 0 : this.P.lightness(a) > this.P.lightness(b) ? 1 : -1;
     });
+    return this;
   }
 
   sortBySaturation() {
     this.colors = this.colors.sort((a, b) => {
       return this.P.saturation(a) === this.P.saturation(b) ? 0 : this.P.saturation(a) > this.P.saturation(b) ? 1 : -1;
     });
+    return this;
   }
 
   toHexString() {
