@@ -10,14 +10,19 @@ module.exports = function (grunt) {
         separator: "\n\n",
       },
       dist: {
-        src: ["src/palette.js", "src/constants.js", "src/index.js"],
+        src: ["src/index.js", "src/constants.js", "src/palette.js"],
         dest: "lib/<%= pkg.name %>.js",
       },
     },
     uglify: {
       options: {
+        compress: {
+          global_defs: {
+            IS_MINIFIED: true
+          }
+        },        
         banner:
-          '/*! <%= pkg.name %>.js (<%= pkg.version %>): a p5.js library to manage color palettes. Author: <%= pkg.author %>, license: <%= pkg.license %>, <%= grunt.template.today("yyyy-mm-dd") %> */ ',
+          '/*! <%= pkg.name %>.js v<%= pkg.version %> - <%= grunt.template.today("mmmm dd, yyyy") %> - License: <%= pkg.license %> */ '
       },
       build: {
         src: "lib/<%= pkg.name %>.js",

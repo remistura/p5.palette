@@ -177,7 +177,7 @@ function setup() {
     .add(color("rgb(0,0,255)"))
     .add(color("hsl(160, 100%, 50%)"))
     .add(color("hsb(160, 100%, 50%)"));  
-  palette.log();
+  palette.log(); // Log colors to console
 }
 ```
 
@@ -219,4 +219,4 @@ Run `grunt` on the terminal to compile the library, it will also export to examp
 
 ## Developing
 
-Run `grunt watch` to update changes in real time
+Run `grunt watch` to update changes in real time.
