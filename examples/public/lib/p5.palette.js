@@ -231,6 +231,19 @@ class Palette {
     return this;
   }
 
+  lerp(percent) {
+    let i = Math.floor(percent*(this.colors.length-1));
+    if(i < 0) return this.colors[0];
+    if(i >= this.colors.length-1) return this.colors[this.colors.length-1];
+
+    percent = (percent - i / (this.colors.length-1)) * (this.colors.length-1);
+    return color(
+      this.colors[i]._getRed() + percent*(this.colors[i+1]._getRed()-this.colors[i]._getRed()),
+      this.colors[i]._getGreen() + percent*(this.colors[i+1]._getGreen()-this.colors[i]._getGreen()),
+      this.colors[i]._getBlue() + percent*(this.colors[i+1]._getBlue()-this.colors[i]._getBlue())
+    )
+  }
+
   lighten() {
     this.P.push();
     this.P.colorMode(HSB);

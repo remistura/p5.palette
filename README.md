@@ -201,3 +201,22 @@ palette.draw();
 That is very useful for loading palettes chosen in sites like [Coolors](https://coolors.co/) and [poolors](https://poolors.com/), where you can copy the hexadecimals string from the palette URL.
 
 There are two other ways to load palettes from the API's of some specialized color sites, such as [COLOURlovers](http://www.colourlovers.com) and [Colormind](http://colormind.io).
+
+
+# Contributing
+
+You can fork the project and submit your pull-request.
+
+This project uses the task manager [Grunt](https://gruntjs.com/).
+
+On the terminal, in the project folder directory:
+1. Install `grunt-cli`: ```npm install -g grunt-cli```
+2. Install packages: ```npm install```
+
+## Build
+
+Run `grunt` on the terminal to compile the library, it will also export to examples folder.
+
+## Developing
+
+Run `grunt watch` to update changes in real time
