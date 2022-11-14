@@ -18,6 +18,9 @@ module.exports = function (grunt) {
       options: {
         banner:
           '/*! <%= pkg.name %>.js (<%= pkg.version %>): a p5.js library to manage color palettes. Author: <%= pkg.author %>, license: <%= pkg.license %>, <%= grunt.template.today("yyyy-mm-dd") %> */ ',
+        mangle: {
+          toplevel: true
+        }
       },
       build: {
         src: "lib/<%= pkg.name %>.js",
