@@ -1,5 +1,8 @@
 /**
- * Color palette
+ * This class represents a color palette, which is a container for p5.Color
+ * objects that has a cursor that points to one currently selected color.
+ *
+ * @class Palette
  */
 class Palette {
   constructor(P, colors) {
@@ -10,6 +13,13 @@ class Palette {
     this.weights = [];
   }
 
+  /**
+   * Add one color or all colors from an existing palette to this palette.
+   *
+   * @param {p5.Color|Palette} arg A Color object or a Palette object
+   * @return {Palette} Reference to this palette.
+   * @memberof Palette
+   */
   add(arg) {
     if (arg instanceof Palette) {
       for (let i = 0; i < arg.size(); i++) {
@@ -21,6 +31,13 @@ class Palette {
     return this;
   }
 
+  /**
+   * Adds two analogous colors for each color of this palette, inserting them
+   * before and after the corresponding color index.
+   *
+   * @return {Palette} Reference to this palette.
+   * @memberof Palette
+   */
   addAnalogousColors() {
     const analogous = this.getAnalogous();
     const newColors = [];
@@ -33,6 +50,13 @@ class Palette {
     return this;
   }
 
+  /**
+   * Adds one complementary color for each color of this palette, and inserts it
+   * after the corresponding color index.
+   *
+   * @return {Palette} Reference to this palette.
+   * @memberof Palette
+   */
   addComplementaryColors() {
     const complementary = this.getComplementary();
     const newColors = [];
@@ -68,6 +92,11 @@ class Palette {
     return this;
   }
 
+  /**
+   * Removes all colors of this palette and resets the cursor index.
+   *
+   * @memberof Palette
+   */
   clear() {
     this.colors = [];
     this.index = -1;
@@ -75,14 +104,32 @@ class Palette {
     this.weights = [];
   }
 
+  /**
+   * Return a Palette object containing the same colors as this palette.
+   *
+   * @return {Palette} A cloned palette.
+   * @memberof Palette
+   */
   clone() {
     return this.P.createPalette(this.colors);
   }
 
+  /**
+   * Returns the current color selected by the cursor index.
+   *
+   * @return {p5.Color} A p5.Color object.
+   * @memberof Palette
+   */
   current() {
     return this.colors[this.index];
   }
 
+  /**
+   * Darkens all colors of this palette.
+   *
+   * @return {Palette} The palette with darkened colors.
+   * @memberof Palette
+   */
   darken() {
     this.P.push();
     this.P.colorMode(HSB);
@@ -96,6 +143,13 @@ class Palette {
     return this;
   }
 
+  /**
+   * Draw a rectangle for each color of the palette.
+   *
+   * @param {*} args
+   * @return {Palette} The palette with darkened colors.
+   * @memberof Palette
+   */
   draw(args) {
     const props = args || {};
     const {
@@ -164,11 +218,25 @@ class Palette {
     return this;
   }
 
+  /**
+   * Return the color indicated by the index passed or the current selected
+   * color if no argument is passed.
+   *
+   * @param {*} ix Color index.
+   * @return {p5.Color} A p5.Color object.
+   * @memberof Palette
+   */
   get(ix) {
     if (ix) return this.colors[ix];
     return this.colors[this.index];
   }
 
+  /**
+   * Return an array containing all colors of this palette.
+   *
+   * @return {Array} Array of p5.Color objects.
+   * @memberof Palette
+   */
   getColors() {
     return this.colors;
   }
@@ -232,16 +300,16 @@ class Palette {
   }
 
   lerp(percent) {
-    let i = Math.floor(percent*(this.colors.length-1));
-    if(i < 0) return this.colors[0];
-    if(i >= this.colors.length-1) return this.colors[this.colors.length-1];
+    let i = Math.floor(percent * (this.colors.length - 1));
+    if (i < 0) return this.colors[0];
+    if (i >= this.colors.length - 1) return this.colors[this.colors.length - 1];
 
-    percent = (percent - i / (this.colors.length-1)) * (this.colors.length-1);
+    percent = (percent - i / (this.colors.length - 1)) * (this.colors.length - 1);
     return color(
-      this.colors[i]._getRed() + percent*(this.colors[i+1]._getRed()-this.colors[i]._getRed()),
-      this.colors[i]._getGreen() + percent*(this.colors[i+1]._getGreen()-this.colors[i]._getGreen()),
-      this.colors[i]._getBlue() + percent*(this.colors[i+1]._getBlue()-this.colors[i]._getBlue())
-    )
+      this.colors[i]._getRed() + percent * (this.colors[i + 1]._getRed() - this.colors[i]._getRed()),
+      this.colors[i]._getGreen() + percent * (this.colors[i + 1]._getGreen() - this.colors[i]._getGreen()),
+      this.colors[i]._getBlue() + percent * (this.colors[i + 1]._getBlue() - this.colors[i]._getBlue())
+    );
   }
 
   lighten() {
@@ -261,6 +329,13 @@ class Palette {
     horizontal ? this.#logHorizontal() : this.#logVertical();
   }
 
+  /**
+   * Moves the cursor index to the next position, or zero if the next position
+   * is greater than the size of the color palette.
+   *
+   * @return {p5.Color} The color at the next cursor index.
+   * @memberof Palette
+   */
   next() {
     if (++this.index === this.colors.length) {
       this.index = 0;
@@ -268,6 +343,13 @@ class Palette {
     return this.colors[this.index];
   }
 
+  /**
+   * Moves the cursor index to the previous position, or to the last one if the 
+   * previous position is less than zero.
+   *
+   * @return {p5.Color} The color at the next cursor index.
+   * @memberof Palette
+   */
   previous() {
     if (--this.index < 0) {
       this.index = this.colors.length - 1;
@@ -292,11 +374,23 @@ class Palette {
     return this;
   }
 
+  /**
+   * Sets the cursor index to zero, a.k.a. the first color in palette.
+   *
+   * @return {Palette} The color palette with cursor index set to zero.
+   * @memberof Palette
+   */
   reset() {
     this.index = 0;
     return this;
   }
 
+  /**
+   * Reverses the palette's array of colors.
+   *
+   * @return {Palette} The reversed palette.
+   * @memberof Palette
+   */
   reverse() {
     this.colors.reverse();
     return this;
@@ -313,16 +407,35 @@ class Palette {
     this.weighted = this.#weight(this.colors);
   }
 
+  /**
+   * Return the number of colors the palette has.
+   *
+   * @return {number} Number of colors.
+   * @memberof Palette
+   */
   size() {
     return this.colors.length;
   }
 
+  /**
+   * Shuffle the colors in the palette in a random order.
+   *
+   * @param {*} fn A random function that can be used instead of Math.random().
+   * @return {Palette} The shuffled color palette.
+   * @memberof Palette
+   */
   shuffle(fn) {
     const rnd = fn || this.P.random;
     this.colors = this.colors.sort(() => rnd() - 0.5);
     return this;
   }
 
+  /**
+   * Sort the palette's colors by brightness.
+   *
+   * @return {Palette} The ordered color palette.
+   * @memberof Palette
+   */
   sortByBrightness() {
     this.colors = this.colors.sort((a, b) => {
       return this.P.brightness(a) === this.P.brightness(b) ? 0 : this.P.brightness(a) > this.P.brightness(b) ? 1 : -1;
@@ -330,6 +443,12 @@ class Palette {
     return this;
   }
 
+  /**
+   * Sort the palette's colors by lightness.
+   *
+   * @return {Palette} The ordered color palette.
+   * @memberof Palette
+   */
   sortByLightness() {
     this.colors = this.colors.sort((a, b) => {
       return this.P.lightness(a) === this.P.lightness(b) ? 0 : this.P.lightness(a) > this.P.lightness(b) ? 1 : -1;
@@ -337,6 +456,12 @@ class Palette {
     return this;
   }
 
+  /**
+   * Sort the palette's colors by saturation.
+   *
+   * @return {Palette} The ordered color palette.
+   * @memberof Palette
+   */
   sortBySaturation() {
     this.colors = this.colors.sort((a, b) => {
       return this.P.saturation(a) === this.P.saturation(b) ? 0 : this.P.saturation(a) > this.P.saturation(b) ? 1 : -1;
@@ -344,6 +469,12 @@ class Palette {
     return this;
   }
 
+  /**
+   * Return an hexadecimal string representation of palette's colors.
+   *
+   * @return {string} Hexadecimal string representation.
+   * @memberof Palette
+   */
   toHexString() {
     return this.toString().replaceAll("#", "");
   }

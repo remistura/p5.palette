@@ -2,6 +2,12 @@ function invalidValue(name, value) {
   throw new Error(`Invalid ${name} value: ${value}`);
 }
 
+/**
+ * Clear palettes saved in browser storage.
+ * 
+ * @return {boolean} Indicates if the removal was successful.
+ * @memberof p5
+ */
 p5.prototype.clearStoredPalettes = () => {
   return this.removeItem(STORAGE_KEY);
 };
