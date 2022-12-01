@@ -31,6 +31,7 @@ const createGradientPalette = ({ amount = 5, end = this.color(0), start = this.c
   return this.createPalette(colors);
 };
 p5.prototype.createGradientPalette = createGradientPalette;
+
 /**
  * Create grayscale palette
  *
@@ -44,6 +45,7 @@ const createGrayscalePalette = ({ amount = 5, end = 255, start = 0 } = {}) => {
   return this.createGradientPalette({ amount, end: to, start: from });
 };
 p5.prototype.createGrayscalePalette = createGrayscalePalette;
+
 /**
  * Create palette
  *
@@ -66,9 +68,9 @@ p5.prototype.createPalette = createPalette;
 /**
  * Create random palette
  *
- * @param {*} num
- * @param {*} fn
- * @return {*}
+ * @param {number} num Number of colors in palette
+ * @param {function} fn A specific random function
+ * @return {Palette} Color palette with random colors
  */
 const createRandomPalette = (num, fn) => {
   // TODO: Improve arguments validation
@@ -97,6 +99,7 @@ const exportStoredPalettes = () => {
   this.saveStrings([contents], "palettes-exported", "js");
 };
 p5.prototype.exportStoredPalettes = exportStoredPalettes;
+
 /**
  * Load Colormind palette
  *
@@ -172,6 +175,12 @@ const loadColourLoversPalette = (callback) => {
 p5.prototype.loadColourLoversPalette = loadColourLoversPalette;
 p5.prototype.registerPreloadMethod("loadColourLoversPalette", p5.prototype);
 
+/**
+ * Load palettes
+ *
+ * @param {*} hexStringArray
+ * @return {*} 
+ */
 const loadPalettes = (hexStringArray) => {
   if (hexStringArray) {
     const palettes = [];
@@ -183,7 +192,11 @@ const loadPalettes = (hexStringArray) => {
   return null;
 };
 p5.prototype.loadPalettes = loadPalettes;
-
+/**
+ * Load stored palettes.
+ *
+ * @return {*} 
+ */
 const loadStoredPalettes = () => {
   const hexStringsArray = loadStoredHexStrings();
   if (hexStringsArray) return this.loadPalettes(hexStringsArray);
@@ -191,6 +204,12 @@ const loadStoredPalettes = () => {
 };
 p5.prototype.loadStoredPalettes = loadStoredPalettes;
 
+/**
+ * Add palette to browser local storage
+ *
+ * @param {*} palette
+ * @return {*} 
+ */
 const storePalette = (palette) => {
   if (!palette || palette.size() < 1) return;
   const str = palette.toHexString();
