@@ -1,6 +1,6 @@
 # p5.palette
 
-A JavaScript library for color palette management in [p5.js](https://p5js.org/).
+A JavaScript library for creating and managing color palettes in [p5.js](https://p5js.org/).
 
 ![Color palette](doc/img/palette.png)
 
