@@ -86,7 +86,6 @@ p5.prototype.createRandomPalette = createRandomPalette;
 
 /**
  * Export stored palettes
- *
  */
 const exportStoredPalettes = () => {
   let contents = "const hexPalettes = [";
