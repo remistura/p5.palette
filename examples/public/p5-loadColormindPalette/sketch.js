@@ -19,10 +19,11 @@ function draw() {
   if (!isLooping()) return;
 
   text('Palette loaded synchronously', 125, 30);
-  paletteSync.draw({ y: 35 });
+  paletteSync.draw({ y: 35, drawBorder: true });
 
   text('Palette loaded asynchronously', 125, 125);
-  paletteAsync.draw({ y: 130 });
+  paletteAsync.draw({ y: 130, drawBorder: true });
+  
   noLoop();
 }
 

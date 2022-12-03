@@ -24,6 +24,7 @@ class Palette {
    * @memberof Palette
    */
   add(arg) {
+    if (!arg) throw new Error("Nothing to add to palette");
     // REFACTORED
     if (arg instanceof Palette) {
       for (let i = 0; i < arg.size(); i++) {
@@ -32,6 +33,7 @@ class Palette {
     } else {
       this.swatches.push(new Swatch(arg));
     }
+    if (this.swatches.length && this.index < 0) this.index = 0;
     return this;
   }
 
@@ -231,8 +233,10 @@ class Palette {
    */
   get(ix) {
     // REFACTORED
-    if (ix) return this.swatches[ix].color;
-    return this.swatches[this.index].color;
+    if (this.index < 0 || this.index >= this.swatches.length) return null;
+    if (isNaN(ix)) return this.swatches[this.index].color;
+    if (ix < 0 || ix >= this.swatches.length) throw `There's no color with index ${ix} in the palette`;
+    return this.swatches[ix].color;
   }
 
   /**

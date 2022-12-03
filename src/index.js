@@ -92,7 +92,6 @@ const exportStoredPalettes = () => {
   let contents = "const hexPalettes = [";
   const hexStringsArray = loadStoredHexStrings();
   if (hexStringsArray) {
-    console.log(hexStringsArray);
     hexStringsArray.forEach((value) => {
       contents += `'${value}',`;
     });
@@ -160,14 +159,21 @@ const _loadColormindPalette = function (successCallback, failureCallback) {
 p5.prototype.loadColormindPalette = _loadColormindPalette;
 p5.prototype.registerPreloadMethod("loadColormindPalette", p5.prototype);
 
-const loadColourLoversPalette = (callback) => {
+/**
+ * Load ColourLovers palette
+ *
+ * @param {*} callback
+ * @return {*} 
+ */
+const _loadColourLoversPalette = (callback) => {
   const newPalette = createPalette();
   createPaletteFromColourLoversJsonp(COLOURLOVERS_API_URL + this.random(50)).then((palette) => {
     for (let i = 0; i < palette.size(); i++) {
-      newPalette.add(palette.get(i));
+      const col = palette.get(i);
+      newPalette.add(col);
     }
     if (typeof callback === "function") {
-      callback(palette);
+      callback(newPalette);
     }
     if (typeof self._decrementPreload === "function") {
       self._decrementPreload();
@@ -175,7 +181,7 @@ const loadColourLoversPalette = (callback) => {
   });
   return newPalette;
 };
-p5.prototype.loadColourLoversPalette = loadColourLoversPalette;
+p5.prototype.loadColourLoversPalette = _loadColourLoversPalette;
 p5.prototype.registerPreloadMethod("loadColourLoversPalette", p5.prototype);
 
 /**
@@ -229,7 +235,6 @@ const createPaletteFromColourLoversJsonp = (url) => {
   return new Promise(function (resolve, reject) {
     httpDo(url, "jsonp", { jsonpCallback: "jsonCallback" }).then((data) => {
       const palette = new Palette(this);
-      console.log(data);
       data[0].colors.forEach((hex) => {
         palette.add(this.color(`#${hex}`));
       });
