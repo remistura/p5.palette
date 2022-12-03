@@ -6,8 +6,9 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(500, 500);
+  createCanvas(250, 210);
   background(0, 25);
+  textAlign(CENTER);
 
   // Load palette asynchronously (using callback function)
   loadColormindPalette(paletteLoaded);
@@ -17,8 +18,11 @@ function setup() {
 function draw() {
   if (!isLooping()) return;
 
-  paletteSync.draw();
-  paletteAsync.draw({ y: 50 });
+  text('Palette loaded synchronously', 125, 30);
+  paletteSync.draw({ y: 35 });
+
+  text('Palette loaded asynchronously', 125, 125);
+  paletteAsync.draw({ y: 130 });
   noLoop();
 }
 
