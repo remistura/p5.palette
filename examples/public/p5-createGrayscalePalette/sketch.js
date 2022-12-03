@@ -1,27 +1,28 @@
 function setup() {
-  createCanvas(280, 375);
+  createCanvas(250, 485);
+  textAlign(CENTER);
 }
 
 function draw() {
   background(239, 238, 187);
 
-  let palette = createGrayscalePalette();
-  palette.draw({ x: 10, y: 10 });
+  text("black to white (default)", 125, 30);
+  createGrayscalePalette().draw({ y: 35 });
 
-  palette = createGrayscalePalette({ amount: 2});
-  palette.draw({ x: 10, y: 70 });
+  text("2 colors", 125, 105);
+  createGrayscalePalette({ amount: 2}).draw({ y:110 });
 
-  palette = createGrayscalePalette({ end: 127, amount: 5});
-  palette.draw({ x: 10, y: 130 });
+  text("black to middle gray", 125, 180);
+  createGrayscalePalette({ end: 127, amount: 5}).draw({ y: 185 });
 
-  palette = createGrayscalePalette({ start: 127, amount: 5});
-  palette.draw({ x: 10, y: 190 });
+  text("middle gray to white", 125, 255);
+  createGrayscalePalette({ start: 127, amount: 5}).draw({ y: 260 });
 
-  palette = createGrayscalePalette({ start: 64, end: 192, amount: 5});
-  palette.draw({ x: 10, y: 250 });
+  text("gray 64 to gray 192", 125, 330);
+  createGrayscalePalette({ start: 64, end: 192, amount: 5}).draw({ y: 335 });
 
-  palette = createGrayscalePalette({ amount: 255});
-  palette.draw({ x: 10, y: 310, width: 256 });
+  text("black to white (255 levels)", 125, 405);
+  createGrayscalePalette({ amount: 255}).draw({ y: 410, width: 1 });
 
   noLoop();
 }

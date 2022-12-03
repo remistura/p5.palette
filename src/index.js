@@ -18,7 +18,7 @@ p5.prototype.clearStoredPalettes = clearStoredPalettes;
  * @param {*} [{ amount = 5, end = this.color(0), start = this.color(255) }={}]
  * @return {*}
  */
-const createGradientPalette = ({ amount = 5, end = this.color(0), start = this.color(255) } = {}) => {
+const createGradientPalette = ({ amount = 5, end = this.color(255), start = this.color(0) } = {}) => {
   const colors = [];
   const from = start;
   const to = end;
