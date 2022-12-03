@@ -110,7 +110,7 @@ p5.prototype.exportStoredPalettes = exportStoredPalettes;
  * @param {*} failureCallback
  * @return {*}
  */
-const loadColormindPalette = function (successCallback, failureCallback) {
+const _loadColormindPalette = function (successCallback, failureCallback) {
   const data = {
     model: "default",
   };
@@ -146,10 +146,8 @@ const loadColormindPalette = function (successCallback, failureCallback) {
   request.send(JSON.stringify(data));
   if (request.readyState === 4 && request.status === 200) {
     const palette = _paletteFromRequest(request);
-    console.log({palette})
     if (palette) {
       if (typeof this._decrementPreload === "function") {
-        console.log("++++++")
         this._decrementPreload();
       }
       return palette;
@@ -159,7 +157,7 @@ const loadColormindPalette = function (successCallback, failureCallback) {
     // EXCEPTION
   }
 };
-p5.prototype.loadColormindPalette = loadColormindPalette;
+p5.prototype.loadColormindPalette = _loadColormindPalette;
 p5.prototype.registerPreloadMethod("loadColormindPalette", p5.prototype);
 
 const loadColourLoversPalette = (callback) => {
