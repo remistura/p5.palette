@@ -10,7 +10,7 @@ module.exports = function (grunt) {
         separator: "\n\n",
       },
       dist: {
-        src: ["src/index.js", "src/constants.js", "src/palette.js"],
+        src: ["src/index.js", "src/constants.js", "src/palette.js", "src/swatch.js"],
         dest: "lib/<%= pkg.name %>.js",
       },
     },

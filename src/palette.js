@@ -7,12 +7,15 @@
 class Palette {
   constructor(P, colors) {
     this.P = P;
-    this.colors = colors || [];
-    this.index = this.colors.length ? 0 : -1;
-    this.weighted = [];
-    this.weights = [];
+    this.swatches = [];
+    if (colors && Array.isArray(colors)) {
+      this.swatches = this.#colorsToSwatches(colors);
+    }
+    this.index = this.swatches.length ? 0 : -1;
+    this.weightedDist = [];
   }
 
+  //----------------------------------------------------------------------------
   /**
    * Add one color or all colors from an existing palette to this palette.
    *
@@ -21,13 +24,16 @@ class Palette {
    * @memberof Palette
    */
   add(arg) {
+    if (!arg) throw new Error("Nothing to add to palette");
+    // REFACTORED
     if (arg instanceof Palette) {
       for (let i = 0; i < arg.size(); i++) {
-        this.colors.push(arg.get(i));
+        this.swatches.push(new Swatch(arg.get(i)));
       }
     } else {
-      this.colors.push(arg);
+      this.swatches.push(new Swatch(arg));
     }
+    if (this.swatches.length && this.index < 0) this.index = 0;
     return this;
   }
 
@@ -98,10 +104,9 @@ class Palette {
    * @memberof Palette
    */
   clear() {
-    this.colors = [];
+    // REFACTORED
+    this.swatches = [];
     this.index = -1;
-    this.weighted = [];
-    this.weights = [];
   }
 
   /**
@@ -111,7 +116,7 @@ class Palette {
    * @memberof Palette
    */
   clone() {
-    return this.P.createPalette(this.colors);
+    return this.P.createPalette(this.getColors());
   }
 
   /**
@@ -121,7 +126,7 @@ class Palette {
    * @memberof Palette
    */
   current() {
-    return this.colors[this.index];
+    return this.swatches[this.index].color;
   }
 
   /**
@@ -170,10 +175,10 @@ class Palette {
     this.P.noStroke();
     let xx = x;
     let yy = y;
-    let total = this.colors.length;
+    let total = this.swatches.length;
 
     for (let i = 0; i < total; i++) {
-      const col = this.colors[i];
+      const col = this.swatches[i].color;
 
       // Draw border
       if (drawBorder) {
@@ -227,8 +232,11 @@ class Palette {
    * @memberof Palette
    */
   get(ix) {
-    if (ix) return this.colors[ix];
-    return this.colors[this.index];
+    // REFACTORED
+    if (this.index < 0 || this.index >= this.swatches.length) return null;
+    if (isNaN(ix)) return this.swatches[this.index].color;
+    if (ix < 0 || ix >= this.swatches.length) throw `There's no color with index ${ix} in the palette`;
+    return this.swatches[ix].color;
   }
 
   /**
@@ -238,15 +246,20 @@ class Palette {
    * @memberof Palette
    */
   getColors() {
-    return this.colors;
+    // REFACTORED
+    const colors = [];
+    this.swatches.forEach((swatch) => {
+      colors.push(swatch.color);
+    });
+    return colors;
   }
 
   getAnalogous() {
     const newColors = [];
-    this.colors.forEach((col) => {
-      const [a1, a2] = this.#getAnalogous(col);
-      newColors.push(a1);
-      newColors.push(a2);
+    this.swatches.forEach((swatch) => {
+      const [c1, c2] = this.#getAnalogousColor(swatch.color);
+      newColors.push(c1);
+      newColors.push(c2);
     });
     return new Palette(this.P, newColors);
   }
@@ -300,27 +313,28 @@ class Palette {
   }
 
   lerp(percent) {
-    let i = Math.floor(percent * (this.colors.length - 1));
-    if (i < 0) return this.colors[0];
-    if (i >= this.colors.length - 1) return this.colors[this.colors.length - 1];
+    // REFACTORED
+    let i = Math.floor(percent * (this.swatches.length - 1));
+    if (i < 0) return this.swatches[0].color;
+    if (i >= this.swatches.length - 1) return this.swatches[this.swatches.length - 1].color;
 
-    percent = (percent - i / (this.colors.length - 1)) * (this.colors.length - 1);
+    percent = (percent - i / (this.swatches.length - 1)) * (this.swatches.length - 1);
     return color(
-      this.colors[i]._getRed() + percent * (this.colors[i + 1]._getRed() - this.colors[i]._getRed()),
-      this.colors[i]._getGreen() + percent * (this.colors[i + 1]._getGreen() - this.colors[i]._getGreen()),
-      this.colors[i]._getBlue() + percent * (this.colors[i + 1]._getBlue() - this.colors[i]._getBlue())
+      this.swatches[i].color._getRed() + percent * (this.swatches[i + 1].color._getRed() - this.swatches[i].color._getRed()),
+      this.swatches[i].color._getGreen() + percent * (this.swatches[i + 1].color._getGreen() - this.swatches[i].color._getGreen()),
+      this.swatches[i].color._getBlue() + percent * (this.swatches[i + 1].color._getBlue() - this.swatches[i].color._getBlue())
     );
   }
 
   lighten() {
+    // REFACTORED
     this.P.push();
     this.P.colorMode(HSB);
-    const newColors = [];
     for (let i = 0; i < this.size(); i++) {
       const col = this.get(i);
-      newColors.push(this.P.color(this.P.hue(col), this.P.saturation(col) * 0.9, this.P.brightness(col) * 1.1));
+      const lightened = this.P.color(this.P.hue(col), this.P.saturation(col) * 0.9, this.P.brightness(col) * 1.1);
+      this.swatches[i].color = lightened;
     }
-    this.colors = Array.from(newColors);
     this.P.pop();
     return this;
   }
@@ -337,39 +351,41 @@ class Palette {
    * @memberof Palette
    */
   next() {
-    if (++this.index === this.colors.length) {
+    // REFACTORED
+    if (++this.index === this.swatches.length) {
       this.index = 0;
     }
-    return this.colors[this.index];
+    return this.swatches[this.index].color;
   }
 
   /**
-   * Moves the cursor index to the previous position, or to the last one if the 
+   * Moves the cursor index to the previous position, or to the last one if the
    * previous position is less than zero.
    *
    * @return {p5.Color} The color at the next cursor index.
    * @memberof Palette
    */
   previous() {
+    // REFACTORED
     if (--this.index < 0) {
-      this.index = this.colors.length - 1;
+      this.index = this.swatches.length - 1;
     }
-    return this.colors[this.index];
+    return this.swatches[this.index].color;
   }
 
   random(fn) {
-    if (this.colors.length < 1) return undefined;
+    // REFACTORED
+    if (this.swatches.length < 1) return undefined;
     const rnd = fn || this.P.random;
-    if (this.weights.length === 0) {
-      this.setWeights(new Array(this.colors.length).fill(1));
-    }
-    return this.weighted[Math.floor(rnd() * this.weighted.length)];
+    if (!this.weightedDist) this.weightedDist = this.#createWeightedDistribution(this.swatches);
+    return this.weightedDist[Math.floor(rnd() * this.weightedDist.length)];
   }
 
   remove(ix) {
-    this.colors.splice(ix, 1);
-    if (this.index >= this.colors.length) {
-      this.index = this.colors.length - 1;
+    // REFACTORED
+    this.swatches.splice(ix, 1);
+    if (this.index >= this.swatches.length) {
+      this.index = this.swatches.length - 1;
     }
     return this;
   }
@@ -381,6 +397,7 @@ class Palette {
    * @memberof Palette
    */
   reset() {
+    // REFACTORED
     this.index = 0;
     return this;
   }
@@ -392,19 +409,38 @@ class Palette {
    * @memberof Palette
    */
   reverse() {
-    this.colors.reverse();
+    // REFACTORED
+    this.swatches.reverse();
     return this;
   }
 
+  /**
+   * Sets current selected color
+   *
+   * @param {*} ix
+   * @return {*}
+   * @memberof Palette
+   */
   set(ix) {
-    if (ix < 0 || ix >= this.colors.length) return;
+    // REFACTORED
+    if (ix < 0 || ix >= this.swatches.length) return;
     this.index = ix;
     return this;
   }
 
+  /**
+   *
+   *
+   * @param {*} weights
+   * @memberof Palette
+   */
   setWeights(weights) {
-    this.weights = weights;
-    this.weighted = this.#weight(this.colors);
+    // REFACTORED
+    if (!weights || weights.length != this.swatches.length) throw "Invalid length for weights array";
+    for (let i = 0; i < weights.length; i++) {
+      this.swatches[i].weight = weights[i];
+    }
+    this.weightedDist = this.#createWeightedDistribution(this.swatches);
   }
 
   /**
@@ -414,7 +450,8 @@ class Palette {
    * @memberof Palette
    */
   size() {
-    return this.colors.length;
+    // REFACTORED
+    return this.swatches.length;
   }
 
   /**
@@ -425,8 +462,9 @@ class Palette {
    * @memberof Palette
    */
   shuffle(fn) {
+    // REFACTORED
     const rnd = fn || this.P.random;
-    this.colors = this.colors.sort(() => rnd() - 0.5);
+    this.swatches = this.swatches.sort(() => rnd() - 0.5);
     return this;
   }
 
@@ -437,8 +475,9 @@ class Palette {
    * @memberof Palette
    */
   sortByBrightness() {
-    this.colors = this.colors.sort((a, b) => {
-      return this.P.brightness(a) === this.P.brightness(b) ? 0 : this.P.brightness(a) > this.P.brightness(b) ? 1 : -1;
+    // REFACTORED
+    this.swatches = this.swatches.sort((a, b) => {
+      return this.P.brightness(a.color) === this.P.brightness(b.color) ? 0 : this.P.brightness(a.color) > this.P.brightness(b.color) ? 1 : -1;
     });
     return this;
   }
@@ -450,8 +489,9 @@ class Palette {
    * @memberof Palette
    */
   sortByLightness() {
-    this.colors = this.colors.sort((a, b) => {
-      return this.P.lightness(a) === this.P.lightness(b) ? 0 : this.P.lightness(a) > this.P.lightness(b) ? 1 : -1;
+    // REFACTORED
+    this.swatches = this.swatches.sort((a, b) => {
+      return this.P.lightness(a.color) === this.P.lightness(b.color) ? 0 : this.P.lightness(a.color) > this.P.lightness(b.color) ? 1 : -1;
     });
     return this;
   }
@@ -463,8 +503,9 @@ class Palette {
    * @memberof Palette
    */
   sortBySaturation() {
-    this.colors = this.colors.sort((a, b) => {
-      return this.P.saturation(a) === this.P.saturation(b) ? 0 : this.P.saturation(a) > this.P.saturation(b) ? 1 : -1;
+    // REFACTORED
+    this.swatches = this.swatches.sort((a, b) => {
+      return this.P.saturation(a.color) === this.P.saturation(b.color) ? 0 : this.P.saturation(a.color) > this.P.saturation(b.color) ? 1 : -1;
     });
     return this;
   }
@@ -476,28 +517,48 @@ class Palette {
    * @memberof Palette
    */
   toHexString() {
+    // REFACTORED
     return this.toString().replaceAll("#", "");
   }
 
   toString(args) {
+    // REFACTORED
     const separator = (args && args.separator) || "-";
     const format = (args && args.format) || "#rrggbb";
     let str = "";
-    this.colors.forEach((color) => {
-      str += color.toString(format);
+    this.swatches.forEach((swatch) => {
+      str += swatch.color.toString(format);
       str += separator;
     });
     str = str.slice(0, -1);
     return str;
   }
 
-  #getAnalogous(col) {
+  #colorsToSwatches(colors) {
+    const swatches = [];
+    colors.forEach((col) => {
+      const swatch = new Swatch(col);
+      swatches.push(swatch);
+    });
+    return swatches;
+  }
+
+  #createWeightedDistribution(swatches) {
+    // REFACTORED
+    const weights = [];
+    swatches.forEach((swatch) => {
+      weights.push(swatch.weight);
+    });
+    return [].concat(...swatches.map((swatch, index) => Array(Math.ceil(weights[index] * 100)).fill(swatch.color)));
+  }
+
+  #getAnalogousColor(col) {
     this.P.push();
     this.P.colorMode(HSB);
-    const a1 = this.P.color((this.P.hue(col) + 330) % 360, this.P.saturation(col), this.P.brightness(col));
-    const a2 = this.P.color((this.P.hue(col) + 30) % 360, this.P.saturation(col), this.P.brightness(col));
+    const c1 = this.P.color((this.P.hue(col) + 330) % 360, this.P.saturation(col), this.P.brightness(col));
+    const c2 = this.P.color((this.P.hue(col) + 30) % 360, this.P.saturation(col), this.P.brightness(col));
     this.P.pop();
-    return [a1, a2];
+    return [c1, c2];
   }
 
   #getComplementary(col) {
@@ -511,10 +572,10 @@ class Palette {
   #getSplitComplementary(col) {
     this.P.push();
     this.P.colorMode(HSB);
-    const s1 = this.P.color((this.P.hue(col) + 150) % 360, this.P.saturation(col), this.P.brightness(col));
-    const s2 = this.P.color((this.P.hue(col) + 210) % 360, this.P.saturation(col), this.P.brightness(col));
+    const c1 = this.P.color((this.P.hue(col) + 150) % 360, this.P.saturation(col), this.P.brightness(col));
+    const c2 = this.P.color((this.P.hue(col) + 210) % 360, this.P.saturation(col), this.P.brightness(col));
     this.P.pop();
-    return [s1, s2];
+    return [c1, c2];
   }
 
   #getTetradic(col) {}
@@ -522,20 +583,20 @@ class Palette {
   #getTriadic(col) {
     this.P.push();
     this.P.colorMode(HSB);
-    const t1 = this.P.color((this.P.hue(col) + 120) % 360, this.P.saturation(col), this.P.brightness(col));
-    const t2 = this.P.color((this.P.hue(col) + 240) % 360, this.P.saturation(col), this.P.brightness(col));
+    const c1 = this.P.color((this.P.hue(col) + 120) % 360, this.P.saturation(col), this.P.brightness(col));
+    const c2 = this.P.color((this.P.hue(col) + 240) % 360, this.P.saturation(col), this.P.brightness(col));
     this.P.pop();
-    return [t1, t2];
+    return [c1, c2];
   }
 
   #logHorizontal() {
+    // REFACTORED
     let str = "";
     let values = "";
     let args = [];
     for (let i = 0; i < this.size(); i++) {
       str = str + "%c%s";
-      let col = this.colors[i];
-      const value = col.toString("#rrggbb");
+      const value = this.swatches[i].color.toString("#rrggbb");
       const style = `color: ${value}`;
       args.push(style);
       args.push("■■■■■■■■■");
@@ -546,14 +607,11 @@ class Palette {
   }
 
   #logVertical() {
-    this.colors.forEach((col) => {
-      const value = col.toString("#rrggbb");
+    // REFACTORED
+    this.swatches.forEach((swatch) => {
+      const value = swatch.color.toString("#rrggbb");
       const style = `background: #222; color: ${value}`;
       console.log(`%c%s%c %s`, style, "■■■■■■■■■■■■■■■■■■■■", "color:gray", `${value}`);
     });
-  }
-
-  #weight(arr) {
-    return [].concat(...arr.map((col, index) => Array(Math.ceil(this.weights[index] * 100)).fill(col)));
   }
 }
