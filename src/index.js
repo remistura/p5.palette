@@ -53,6 +53,7 @@ p5.prototype.createGrayscalePalette = createGrayscalePalette;
  * @return {*}
  */
 const createPalette = (args) => {
+  // REFACTORED
   let colors = [];
   if (Array.isArray(args)) {
     colors = args;
@@ -90,12 +91,15 @@ p5.prototype.createRandomPalette = createRandomPalette;
 const exportStoredPalettes = () => {
   let contents = "const hexPalettes = [";
   const hexStringsArray = loadStoredHexStrings();
-  hexStringsArray.forEach((value) => {
-    contents += `'${value}',`;
-  });
-  contents = contents.slice(0, -1);
-  contents += "];";
-  this.saveStrings([contents], "palettes-exported", "js");
+  if (hexStringsArray) {
+    console.log(hexStringsArray);
+    hexStringsArray.forEach((value) => {
+      contents += `'${value}',`;
+    });
+    contents = contents.slice(0, -1);
+    contents += "];";
+    this.saveStrings([contents], "palettes-exported", "js");
+  }
 };
 p5.prototype.exportStoredPalettes = exportStoredPalettes;
 
@@ -142,8 +146,10 @@ const loadColormindPalette = function (successCallback, failureCallback) {
   request.send(JSON.stringify(data));
   if (request.readyState === 4 && request.status === 200) {
     const palette = _paletteFromRequest(request);
+    console.log({palette})
     if (palette) {
       if (typeof this._decrementPreload === "function") {
+        console.log("++++++")
         this._decrementPreload();
       }
       return palette;
@@ -157,10 +163,10 @@ p5.prototype.loadColormindPalette = loadColormindPalette;
 p5.prototype.registerPreloadMethod("loadColormindPalette", p5.prototype);
 
 const loadColourLoversPalette = (callback) => {
-  const retPalette = createPalette();
+  const newPalette = createPalette();
   createPaletteFromColourLoversJsonp(COLOURLOVERS_API_URL + this.random(50)).then((palette) => {
     for (let i = 0; i < palette.size(); i++) {
-      retPalette.add(palette.get(i));
+      newPalette.add(palette.get(i));
     }
     if (typeof callback === "function") {
       callback(palette);
@@ -169,7 +175,7 @@ const loadColourLoversPalette = (callback) => {
       self._decrementPreload();
     }
   });
-  return retPalette;
+  return newPalette;
 };
 p5.prototype.loadColourLoversPalette = loadColourLoversPalette;
 p5.prototype.registerPreloadMethod("loadColourLoversPalette", p5.prototype);
@@ -178,7 +184,7 @@ p5.prototype.registerPreloadMethod("loadColourLoversPalette", p5.prototype);
  * Load palettes
  *
  * @param {*} hexStringArray
- * @return {*} 
+ * @return {*}
  */
 const loadPalettes = (hexStringArray) => {
   if (hexStringArray) {
@@ -194,7 +200,7 @@ p5.prototype.loadPalettes = loadPalettes;
 /**
  * Load stored palettes.
  *
- * @return {*} 
+ * @return {*}
  */
 const loadStoredPalettes = () => {
   const hexStringsArray = loadStoredHexStrings();
@@ -207,7 +213,7 @@ p5.prototype.loadStoredPalettes = loadStoredPalettes;
  * Add palette to browser local storage
  *
  * @param {*} palette
- * @return {*} 
+ * @return {*}
  */
 const storePalette = (palette) => {
   if (!palette || palette.size() < 1) return;
