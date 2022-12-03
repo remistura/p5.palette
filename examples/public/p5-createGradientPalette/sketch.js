@@ -1,21 +1,21 @@
 function setup() {
-  createCanvas(500, 500);
+  createCanvas(250, 340);
   background(0, 25);
+  textAlign(CENTER);
 }
 
 function draw() {
+  text("white to black (default)", 125, 30);
+  createGradientPalette().draw({ y: 35 });
 
-  let palette = createGradientPalette();
-  palette.draw({ x: 10, y: 10 });
+  text("red to black", 125, 105);
+  createGradientPalette({ start: color(255, 0, 0) }).draw({ y: 110 });
 
-  palette = createGradientPalette({ start: color(255, 0, 0)});
-  palette.draw({ x: 10, y: 70 });
+  text("white to red", 125, 180);
+  createGradientPalette({ end: color(255, 0, 0) }).draw({ y: 185 });
 
-  palette = createGradientPalette({ end: color(255, 0, 0)});
-  palette.draw({ x: 10, y: 130 });
-
-  palette = createGradientPalette({ amount: 25, start: color(240, 240, 0), end: color(0, 0, 255)});
-  palette.draw({ x: 10, y: 190, width: 15 });
+  text("yellow to blue", 125, 255);
+  createGradientPalette({ amount: 50, start: color(240, 240, 0), end: color(0, 0, 255) }).draw({ y: 260, width: 5 });
 
   noLoop();
 }
