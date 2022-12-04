@@ -220,3 +220,7 @@ Run `grunt` on the terminal to compile the library, it will also export to examp
 ## Developing
 
 Run `grunt watch` to update changes in real time.
+
+## API Documentation
+
+Run `grunt jsdoc` to generate API documentation on folder `doc/jsdoc`.
