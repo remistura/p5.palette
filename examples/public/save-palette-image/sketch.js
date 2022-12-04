@@ -4,7 +4,7 @@ Configure colors, run page and hit [ENTER] to save image.
 */
 
 // Put palette colors here
-const COLORS = "e3e7af-a2a77f-eff1c5-035e7b-002e2c";
+const COLORS = "264653-2a9d8f-e9c46a-f4a261-e76f51";
 
 // Size of each color
 const HEIGHT = 50;
@@ -15,6 +15,7 @@ let palette;
 function setup() {
   palette = createPalette(COLORS);
   const total = palette.size();
+  pixelDensity(1);
   createCanvas(WIDTH * total, HEIGHT);
 }
 
