@@ -1,32 +1,262 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>JSDoc: Source: palette.js</title>
+function invalidValue(name, value) {
+  throw new Error(`Invalid ${name} value: ${value}`);
+}
 
-    <script src="scripts/prettify/prettify.js"> </script>
-    <script src="scripts/prettify/lang-css.js"> </script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
-</head>
+/**
+ * Clear palettes saved in browser storage.
+ *
+ * @return {*}
+ */
+const clearStoredPalettes = () => {
+  return this.removeItem(STORAGE_KEY);
+};
+p5.prototype.clearStoredPalettes = clearStoredPalettes;
 
-<body>
+/**
+ * Create gradient palette
+ *
+ * @param {*} [{ amount = 5, end = this.color(0), start = this.color(255) }={}]
+ * @return {*}
+ */
+const createGradientPalette = ({ amount = 5, end = this.color(255), start = this.color(0) } = {}) => {
+  const colors = [];
+  const from = start;
+  const to = end;
+  let amt = 0;
+  for (let i = 0; i < amount - 1; i++) {
+    colors.push(this.lerpColor(from, to, amt));
+    amt += 1 / amount;
+  }
+  colors.push(to);
+  return this.createPalette(colors);
+};
+p5.prototype.createGradientPalette = createGradientPalette;
 
-<div id="main">
+/**
+ * Create grayscale palette
+ *
+ * @param {*} [{ amount = 5, end = 255, start = 0 }={}]
+ * @return {*}
+ */
+const createGrayscalePalette = ({ amount = 5, end = 255, start = 0 } = {}) => {
+  if (amount < 2 || amount > 255) invalidValue("amount", amount);
+  const from = this.color(start);
+  const to = this.color(end);
+  return this.createGradientPalette({ amount, end: to, start: from });
+};
+p5.prototype.createGrayscalePalette = createGrayscalePalette;
 
-    <h1 class="page-title">Source: palette.js</h1>
+/**
+ * Create palette
+ *
+ * @param {*} args
+ * @return {*}
+ */
+const createPalette = (args) => {
+  // REFACTORED
+  let colors = [];
+  if (Array.isArray(args)) {
+    colors = args;
+  } else if (typeof args === "string" || args instanceof String) {
+    args.split("-").forEach((value) => {
+      colors.push(this.color(`#${value}`));
+    });
+  }
+  return new Palette(this, colors);
+};
+p5.prototype.createPalette = createPalette;
 
-    
+/**
+ * Create random palette
+ *
+ * @param {number} num Number of colors in palette
+ * @param {function} fn A specific random function
+ * @return {Palette} Color palette with random colors
+ */
+const createRandomPalette = (num, fn) => {
+  // TODO: Improve arguments validation
+  const total = num || 5;
+  const rnd = fn || this.random;
+  const colors = [];
+  for (let i = 0; i < total; i++) {
+    colors.push(this.color(rnd() * 255, rnd() * 255, rnd() * 255));
+  }
+  return createPalette(colors);
+};
+p5.prototype.createRandomPalette = createRandomPalette;
+
+/**
+ * Export stored palettes
+ */
+const exportStoredPalettes = () => {
+  let contents = "const hexPalettes = [";
+  const hexStringsArray = loadStoredHexStrings();
+  if (hexStringsArray) {
+    hexStringsArray.forEach((value) => {
+      contents += `'${value}',`;
+    });
+    contents = contents.slice(0, -1);
+    contents += "];";
+    this.saveStrings([contents], "palettes-exported", "js");
+  }
+};
+p5.prototype.exportStoredPalettes = exportStoredPalettes;
+
+/**
+ * Load Colormind palette
+ *
+ * @param {*} successCallback
+ * @param {*} failureCallback
+ * @return {*}
+ */
+const _loadColormindPalette = function (successCallback, failureCallback) {
+  const data = {
+    model: "default",
+  };
+  const request = new XMLHttpRequest();
+
+  const _paletteFromRequest = (request) => {
+    const json = JSON.parse(request.response);
+    if (json.result) {
+      const palette = this.createPalette();
+      json.result.forEach((rgb) => {
+        palette.add(this.color(rgb));
+      });
+      return palette;
+    }
+    return null;
+  };
+
+  let asynchronous = false;
+  if (typeof successCallback === "function") {
+    asynchronous = true;
+    request.onreadystatechange = function () {
+      if (request.readyState === 4 && request.status === 200) {
+        const palette = _paletteFromRequest(request);
+        if (palette) successCallback(palette);
+        // EXCEPTION
+      } else {
+        // EXCEPTION
+      }
+    };
+  }
+
+  request.open("POST", COLORMIND_API_URL, asynchronous); // `false` makes the request synchronous
+  request.send(JSON.stringify(data));
+  if (request.readyState === 4 && request.status === 200) {
+    const palette = _paletteFromRequest(request);
+    if (palette) {
+      if (typeof this._decrementPreload === "function") {
+        this._decrementPreload();
+      }
+      return palette;
+    }
+    // EXCEPTION
+  } else {
+    // EXCEPTION
+  }
+};
+p5.prototype.loadColormindPalette = _loadColormindPalette;
+p5.prototype.registerPreloadMethod("loadColormindPalette", p5.prototype);
+
+/**
+ * Load ColourLovers palette
+ *
+ * @param {*} callback
+ * @return {*} 
+ */
+const _loadColourLoversPalette = (callback) => {
+  const newPalette = createPalette();
+  createPaletteFromColourLoversJsonp(COLOURLOVERS_API_URL + this.random(50)).then((palette) => {
+    for (let i = 0; i < palette.size(); i++) {
+      const col = palette.get(i);
+      newPalette.add(col);
+    }
+    if (typeof callback === "function") {
+      callback(newPalette);
+    }
+    if (typeof self._decrementPreload === "function") {
+      self._decrementPreload();
+    }
+  });
+  return newPalette;
+};
+p5.prototype.loadColourLoversPalette = _loadColourLoversPalette;
+p5.prototype.registerPreloadMethod("loadColourLoversPalette", p5.prototype);
+
+/**
+ * Load palettes
+ *
+ * @param {*} hexStringArray
+ * @return {*}
+ */
+const loadPalettes = (hexStringArray) => {
+  if (hexStringArray) {
+    const palettes = [];
+    hexStringArray.forEach((value) => {
+      palettes.push(this.createPalette(value));
+    });
+    return palettes;
+  }
+  return null;
+};
+p5.prototype.loadPalettes = loadPalettes;
+/**
+ * Load stored palettes.
+ *
+ * @return {*}
+ */
+const loadStoredPalettes = () => {
+  const hexStringsArray = loadStoredHexStrings();
+  if (hexStringsArray) return this.loadPalettes(hexStringsArray);
+  return null;
+};
+p5.prototype.loadStoredPalettes = loadStoredPalettes;
+
+/**
+ * Add palette to browser local storage
+ *
+ * @param {*} palette
+ * @return {*}
+ */
+const storePalette = (palette) => {
+  if (!palette || palette.size() < 1) return;
+  const str = palette.toHexString();
+  let hexStringsArray = loadStoredHexStrings();
+  if (!hexStringsArray) {
+    hexStringsArray = [];
+  }
+  hexStringsArray.push(str);
+  this.storeItem(STORAGE_KEY, JSON.stringify(hexStringsArray));
+};
+p5.prototype.storePalette = storePalette;
+
+const createPaletteFromColourLoversJsonp = (url) => {
+  return new Promise(function (resolve, reject) {
+    httpDo(url, "jsonp", { jsonpCallback: "jsonCallback" }).then((data) => {
+      const palette = new Palette(this);
+      data[0].colors.forEach((hex) => {
+        palette.add(this.color(`#${hex}`));
+      });
+      resolve(palette);
+    });
+  });
+};
+
+const loadStoredHexStrings = () => {
+  const item = getItem(STORAGE_KEY);
+  if (item) {
+    return JSON.parse(item);
+  }
+  return null;
+};
 
 
+const COLORMIND_API_URL = "http://colormind.io/api/";
+const COLOURLOVERS_API_URL = "http://www.colourlovers.com/api/palettes/top?format=json&numResults=1&resultOffset=";
+const STORAGE_KEY = "p5.palette";
 
-    
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/**
+/**
  * This class represents a color palette, which is a container for p5.Color
  * objects that has a cursor that points to one currently selected color.
  *
@@ -36,7 +266,7 @@ class Palette {
   constructor(P, colors) {
     this.P = P;
     this.swatches = [];
-    if (colors &amp;&amp; Array.isArray(colors)) {
+    if (colors && Array.isArray(colors)) {
       this.swatches = this.#colorsToSwatches(colors);
     }
     this.index = this.swatches.length ? 0 : -1;
@@ -55,13 +285,13 @@ class Palette {
     if (!arg) throw new Error("Nothing to add to palette");
     // REFACTORED
     if (arg instanceof Palette) {
-      for (let i = 0; i &lt; arg.size(); i++) {
+      for (let i = 0; i < arg.size(); i++) {
         this.swatches.push(new Swatch(arg.get(i)));
       }
     } else {
       this.swatches.push(new Swatch(arg));
     }
-    if (this.swatches.length &amp;&amp; this.index &lt; 0) this.index = 0;
+    if (this.swatches.length && this.index < 0) this.index = 0;
     return this;
   }
 
@@ -75,7 +305,7 @@ class Palette {
   addAnalogousColors() {
     const analogous = this.getAnalogous();
     const newColors = [];
-    for (let i = 0; i &lt; this.size(); i++) {
+    for (let i = 0; i < this.size(); i++) {
       newColors.push(analogous.get(i * 2));
       newColors.push(this.get(i));
       newColors.push(analogous.get(i * 2 + 1));
@@ -94,7 +324,7 @@ class Palette {
   addComplementaryColors() {
     const complementary = this.getComplementary();
     const newColors = [];
-    for (let i = 0; i &lt; this.size(); i++) {
+    for (let i = 0; i < this.size(); i++) {
       newColors.push(this.get(i));
       newColors.push(complementary.get(i));
     }
@@ -105,7 +335,7 @@ class Palette {
   addSplitComplementaryColors() {
     const complementary = this.getSplitComplementary();
     const newColors = [];
-    for (let i = 0; i &lt; this.size(); i++) {
+    for (let i = 0; i < this.size(); i++) {
       newColors.push(complementary.get(i * 2));
       newColors.push(this.get(i));
       newColors.push(complementary.get(i * 2 + 1));
@@ -117,7 +347,7 @@ class Palette {
   addTriadicColors() {
     const triadic = this.getTriadic();
     const newColors = [];
-    for (let i = 0; i &lt; this.size(); i++) {
+    for (let i = 0; i < this.size(); i++) {
       newColors.push(triadic.get(i * 2));
       newColors.push(this.get(i));
       newColors.push(triadic.get(i * 2 + 1));
@@ -167,7 +397,7 @@ class Palette {
     this.P.push();
     this.P.colorMode(HSB);
     const newColors = [];
-    for (let i = 0; i &lt; this.size(); i++) {
+    for (let i = 0; i < this.size(); i++) {
       const col = this.get(i);
       newColors.push(this.P.color(this.P.hue(col), this.P.saturation(col), this.P.brightness(col) * 0.9));
     }
@@ -205,7 +435,7 @@ class Palette {
     let yy = y;
     let total = this.swatches.length;
 
-    for (let i = 0; i &lt; total; i++) {
+    for (let i = 0; i < total; i++) {
       const col = this.swatches[i].color;
 
       // Draw border
@@ -235,7 +465,7 @@ class Palette {
         const indexStr = `${i}`;
         this.P.text(indexStr, cx, cy);
 
-        if (showCursor &amp;&amp; this.index === i) {
+        if (showCursor && this.index === i) {
           let cWidth = textWidth(indexStr);
           const diameter = cWidth > fontSize ? cWidth : fontSize;
           this.P.noFill();
@@ -261,9 +491,9 @@ class Palette {
    */
   get(ix) {
     // REFACTORED
-    if (this.index &lt; 0 || this.index >= this.swatches.length) return null;
+    if (this.index < 0 || this.index >= this.swatches.length) return null;
     if (isNaN(ix)) return this.swatches[this.index].color;
-    if (ix &lt; 0 || ix >= this.swatches.length) throw `There's no color with index ${ix} in the palette`;
+    if (ix < 0 || ix >= this.swatches.length) throw `There's no color with index ${ix} in the palette`;
     return this.swatches[ix].color;
   }
 
@@ -322,7 +552,7 @@ class Palette {
 
   insertGradients(amount = 5, loop = false) {
     const palettes = [];
-    for (let i = 0; i &lt; this.size() - 1; i++) {
+    for (let i = 0; i < this.size() - 1; i++) {
       const start = this.get(i);
       const end = this.get(i + 1);
       palettes.push(createGradientPalette({ amount, start, end }));
@@ -343,7 +573,7 @@ class Palette {
   lerp(percent) {
     // REFACTORED
     let i = Math.floor(percent * (this.swatches.length - 1));
-    if (i &lt; 0) return this.swatches[0].color;
+    if (i < 0) return this.swatches[0].color;
     if (i >= this.swatches.length - 1) return this.swatches[this.swatches.length - 1].color;
 
     percent = (percent - i / (this.swatches.length - 1)) * (this.swatches.length - 1);
@@ -358,7 +588,7 @@ class Palette {
     // REFACTORED
     this.P.push();
     this.P.colorMode(HSB);
-    for (let i = 0; i &lt; this.size(); i++) {
+    for (let i = 0; i < this.size(); i++) {
       const col = this.get(i);
       const lightened = this.P.color(this.P.hue(col), this.P.saturation(col) * 0.9, this.P.brightness(col) * 1.1);
       this.swatches[i].color = lightened;
@@ -395,7 +625,7 @@ class Palette {
    */
   previous() {
     // REFACTORED
-    if (--this.index &lt; 0) {
+    if (--this.index < 0) {
       this.index = this.swatches.length - 1;
     }
     return this.swatches[this.index].color;
@@ -403,7 +633,7 @@ class Palette {
 
   random(fn) {
     // REFACTORED
-    if (this.swatches.length &lt; 1) return undefined;
+    if (this.swatches.length < 1) return undefined;
     const rnd = fn || this.P.random;
     if (!this.weightedDist) this.weightedDist = this.#createWeightedDistribution(this.swatches);
     return this.weightedDist[Math.floor(rnd() * this.weightedDist.length)];
@@ -451,7 +681,7 @@ class Palette {
    */
   set(ix) {
     // REFACTORED
-    if (ix &lt; 0 || ix >= this.swatches.length) return;
+    if (ix < 0 || ix >= this.swatches.length) return;
     this.index = ix;
     return this;
   }
@@ -465,7 +695,7 @@ class Palette {
   setWeights(weights) {
     // REFACTORED
     if (!weights || weights.length != this.swatches.length) throw "Invalid length for weights array";
-    for (let i = 0; i &lt; weights.length; i++) {
+    for (let i = 0; i < weights.length; i++) {
       this.swatches[i].weight = weights[i];
     }
     this.weightedDist = this.#createWeightedDistribution(this.swatches);
@@ -551,8 +781,8 @@ class Palette {
 
   toString(args) {
     // REFACTORED
-    const separator = (args &amp;&amp; args.separator) || "-";
-    const format = (args &amp;&amp; args.format) || "#rrggbb";
+    const separator = (args && args.separator) || "-";
+    const format = (args && args.format) || "#rrggbb";
     let str = "";
     this.swatches.forEach((swatch) => {
       str += swatch.color.toString(format);
@@ -622,7 +852,7 @@ class Palette {
     let str = "";
     let values = "";
     let args = [];
-    for (let i = 0; i &lt; this.size(); i++) {
+    for (let i = 0; i < this.size(); i++) {
       str = str + "%c%s";
       const value = this.swatches[i].color.toString("#rrggbb");
       const style = `color: ${value}`;
@@ -643,26 +873,13 @@ class Palette {
     });
   }
 }
-</code></pre>
-        </article>
-    </section>
 
 
-
-
-</div>
-
-<nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Palette.html">Palette</a></li></ul><h3>Global</h3><ul><li><a href="global.html#_loadColormindPalette">_loadColormindPalette</a></li><li><a href="global.html#_loadColourLoversPalette">_loadColourLoversPalette</a></li><li><a href="global.html#clearStoredPalettes">clearStoredPalettes</a></li><li><a href="global.html#createGradientPalette">createGradientPalette</a></li><li><a href="global.html#createGrayscalePalette">createGrayscalePalette</a></li><li><a href="global.html#createPalette">createPalette</a></li><li><a href="global.html#createRandomPalette">createRandomPalette</a></li><li><a href="global.html#exportStoredPalettes">exportStoredPalettes</a></li><li><a href="global.html#loadPalettes">loadPalettes</a></li><li><a href="global.html#loadStoredPalettes">loadStoredPalettes</a></li><li><a href="global.html#storePalette">storePalette</a></li></ul>
-</nav>
-
-<br class="clear">
-
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.11</a> on Sat Dec 03 2022 22:03:15 GMT-0300 (Brasilia Standard Time)
-</footer>
-
-<script> prettyPrint(); </script>
-<script src="scripts/linenumber.js"> </script>
-</body>
-</html>
+class Swatch {
+  constructor(color, weight, skip) {
+    if (!color) throw "A swatch needs a color!";
+    this.color = color;
+    this.weight = weight || 1;
+    this.skip = skip || false;
+  }
+}
