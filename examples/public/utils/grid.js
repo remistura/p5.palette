@@ -16,10 +16,15 @@ class Grid {
     this.dh = h / this.totalY;
   }
 
-  draw() {
+  draw(useCircles = false) {
     const xx = this.x + this.ix * this.dw;
     const yy = this.y + this.iy * this.dh;
-    this.P.rect(xx, yy, this.dw, this.dh);
+    if (useCircles) {
+      const diameter = this.dw > this.dh ? this.dw : this.dh;
+      this.P.circle(xx + this.dw / 2, yy + this.dh / 2, diameter * 0.8);
+    } else {
+      this.P.rect(xx, yy, this.dw, this.dh);
+    }
     this.ix++;
     if (this.ix === this.totalX) {
       this.ix = 0;

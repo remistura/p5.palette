@@ -18,7 +18,7 @@ p5.prototype.clearStoredPalettes = clearStoredPalettes;
  * @param {*} [{ amount = 5, end = this.color(0), start = this.color(255) }={}]
  * @return {*}
  */
-const createGradientPalette = ({ amount = 5, end = this.color(0), start = this.color(255) } = {}) => {
+const createGradientPalette = ({ amount = 5, end = this.color(255), start = this.color(0) } = {}) => {
   const colors = [];
   const from = start;
   const to = end;
@@ -278,7 +278,7 @@ class Palette {
    * Add one color or all colors from an existing palette to this palette.
    *
    * @param {p5.Color|Palette} arg A Color object or a Palette object
-   * @return {Palette} Reference to this palette.
+   * @return {Palette} Reference to this palette
    * @memberof Palette
    */
   add(arg) {
@@ -299,7 +299,7 @@ class Palette {
    * Adds two analogous colors for each color of this palette, inserting them
    * before and after the corresponding color index.
    *
-   * @return {Palette} Reference to this palette.
+   * @return {Palette} Reference to this palette
    * @memberof Palette
    */
   addAnalogousColors() {
@@ -318,7 +318,7 @@ class Palette {
    * Adds one complementary color for each color of this palette, and inserts it
    * after the corresponding color index.
    *
-   * @return {Palette} Reference to this palette.
+   * @return {Palette} Reference to this palette
    * @memberof Palette
    */
   addComplementaryColors() {
@@ -370,7 +370,7 @@ class Palette {
   /**
    * Return a Palette object containing the same colors as this palette.
    *
-   * @return {Palette} A cloned palette.
+   * @return {Palette} A cloned palette
    * @memberof Palette
    */
   clone() {
@@ -380,7 +380,7 @@ class Palette {
   /**
    * Returns the current color selected by the cursor index.
    *
-   * @return {p5.Color} A p5.Color object.
+   * @return {p5.Color} A p5.Color object
    * @memberof Palette
    */
   current() {
@@ -390,7 +390,7 @@ class Palette {
   /**
    * Darkens all colors of this palette.
    *
-   * @return {Palette} The palette with darkened colors.
+   * @return {Palette} The palette with darkened colors
    * @memberof Palette
    */
   darken() {
@@ -410,7 +410,7 @@ class Palette {
    * Draw a rectangle for each color of the palette.
    *
    * @param {*} args
-   * @return {Palette} The palette with darkened colors.
+   * @return {Palette} The palette with darkened colors
    * @memberof Palette
    */
   draw(args) {
@@ -424,6 +424,7 @@ class Palette {
       offset = 0,
       showCursor = false,
       showIndex = false,
+      showSkipped = false,
       vertical = false,
       width = 50,
       x = 0,
@@ -473,6 +474,11 @@ class Palette {
         }
       }
 
+      if (showSkipped && this.swatches[i].skip) {
+        this.P.line(xx, yy, xx + width, yy + height);
+        this.P.line(xx + width, yy, xx, yy + height);
+      }
+
       xx += vertical ? 0 : width + offset;
       yy += vertical ? height + offset : 0;
     }
@@ -486,7 +492,7 @@ class Palette {
    * color if no argument is passed.
    *
    * @param {*} ix Color index.
-   * @return {p5.Color} A p5.Color object.
+   * @return {p5.Color} A p5.Color object
    * @memberof Palette
    */
   get(ix) {
@@ -500,7 +506,7 @@ class Palette {
   /**
    * Return an array containing all colors of this palette.
    *
-   * @return {Array} Array of p5.Color objects.
+   * @return {Array} Array of p5.Color objects
    * @memberof Palette
    */
   getColors() {
@@ -602,25 +608,28 @@ class Palette {
   }
 
   /**
-   * Moves the cursor index to the next position, or zero if the next position
-   * is greater than the size of the color palette.
+   * Returns current selected color and moves the cursor index to next position,
+   * or zero if it is greater than the number of colors in palette.
    *
-   * @return {p5.Color} The color at the next cursor index.
+   * @return {p5.Color} The color at current cursor index
    * @memberof Palette
    */
   next() {
-    // REFACTORED
-    if (++this.index === this.swatches.length) {
-      this.index = 0;
+    for (let i = 0; i < this.swatches.length; i++) {
+      const swatch = this.swatches[this.index];
+      this.#increaseIndex();
+      if (!swatch.skip) {   
+        return swatch.color;
+      }
     }
-    return this.swatches[this.index].color;
+    throw "A palette should not have all colors skipped";
   }
 
   /**
    * Moves the cursor index to the previous position, or to the last one if the
    * previous position is less than zero.
    *
-   * @return {p5.Color} The color at the next cursor index.
+   * @return {p5.Color} The color at the next cursor index
    * @memberof Palette
    */
   previous() {
@@ -635,7 +644,7 @@ class Palette {
     // REFACTORED
     if (this.swatches.length < 1) return undefined;
     const rnd = fn || this.P.random;
-    if (!this.weightedDist) this.weightedDist = this.#createWeightedDistribution(this.swatches);
+    if (!this.weightedDist.length) this.weightedDist = this.#createWeightedDistribution(this.swatches);
     return this.weightedDist[Math.floor(rnd() * this.weightedDist.length)];
   }
 
@@ -651,7 +660,7 @@ class Palette {
   /**
    * Sets the cursor index to zero, a.k.a. the first color in palette.
    *
-   * @return {Palette} The color palette with cursor index set to zero.
+   * @return {Palette} The color palette with cursor index set to zero
    * @memberof Palette
    */
   reset() {
@@ -663,7 +672,7 @@ class Palette {
   /**
    * Reverses the palette's array of colors.
    *
-   * @return {Palette} The reversed palette.
+   * @return {Palette} The reversed palette
    * @memberof Palette
    */
   reverse() {
@@ -704,7 +713,7 @@ class Palette {
   /**
    * Return the number of colors the palette has.
    *
-   * @return {number} Number of colors.
+   * @return {number} Number of colors
    * @memberof Palette
    */
   size() {
@@ -715,8 +724,8 @@ class Palette {
   /**
    * Shuffle the colors in the palette in a random order.
    *
-   * @param {*} fn A random function that can be used instead of Math.random().
-   * @return {Palette} The shuffled color palette.
+   * @param {*} fn A random function that can be used instead of Math.random()
+   * @return {Palette} The shuffled color palette
    * @memberof Palette
    */
   shuffle(fn) {
@@ -726,10 +735,24 @@ class Palette {
     return this;
   }
 
+  skip(index) {
+    if (!this.#validIndex(index)) throw "Invalid color index";
+    this.swatches[index].skip = true;
+  }
+
+  unskip(index) {
+    if (!this.#validIndex(index)) throw "Invalid color index";
+    this.swatches[index].skip = false;
+  }
+
+  unskipAll() {
+    this.swatches.forEach((swatch) => (swatch.skip = false));
+  }
+
   /**
    * Sort the palette's colors by brightness.
    *
-   * @return {Palette} The ordered color palette.
+   * @return {Palette} The ordered color palette
    * @memberof Palette
    */
   sortByBrightness() {
@@ -743,7 +766,7 @@ class Palette {
   /**
    * Sort the palette's colors by lightness.
    *
-   * @return {Palette} The ordered color palette.
+   * @return {Palette} The ordered color palette
    * @memberof Palette
    */
   sortByLightness() {
@@ -757,7 +780,7 @@ class Palette {
   /**
    * Sort the palette's colors by saturation.
    *
-   * @return {Palette} The ordered color palette.
+   * @return {Palette} The ordered color palette
    * @memberof Palette
    */
   sortBySaturation() {
@@ -771,7 +794,7 @@ class Palette {
   /**
    * Return an hexadecimal string representation of palette's colors.
    *
-   * @return {string} Hexadecimal string representation.
+   * @return {string} Hexadecimal string representation
    * @memberof Palette
    */
   toHexString() {
@@ -847,6 +870,12 @@ class Palette {
     return [c1, c2];
   }
 
+  #increaseIndex() {
+    if (++this.index === this.swatches.length) {
+      this.index = 0;
+    }
+  }
+
   #logHorizontal() {
     // REFACTORED
     let str = "";
@@ -871,6 +900,10 @@ class Palette {
       const style = `background: #222; color: ${value}`;
       console.log(`%c%s%c %s`, style, "■■■■■■■■■■■■■■■■■■■■", "color:gray", `${value}`);
     });
+  }
+
+  #validIndex(index) {
+    return !(isNaN(index) || index < 0 || index > this.swatches.length);
   }
 }
 
