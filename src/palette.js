@@ -15,7 +15,6 @@ class Palette {
     this.weightedDist = [];
   }
 
-  //----------------------------------------------------------------------------
   /**
    * Add one color or all colors from an existing palette to this palette.
    *

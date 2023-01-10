@@ -202,6 +202,13 @@ That is very useful for loading palettes chosen in sites like [Coolors](https://
 
 There are two other ways to load palettes from the API's of some specialized color sites, such as [COLOURlovers](http://www.colourlovers.com) and [Colormind](http://colormind.io).
 
+# Examples
+
+```
+npm install -g live-server
+cd examples/public
+live-server
+```
 
 # Contributing
 
