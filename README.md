@@ -4,6 +4,14 @@ A JavaScript library for creating and managing color palettes in [p5.js](https:/
 
 ![Color palette](doc/img/palette.png)
 
+**This project is still in alpha version**, there might be some bugs and inconsistencies all around. I develop it in my spare time and I'm trying to improve it gradually, there are some plans for the near future:
+- introduce basic unit tests;
+- convert the code base to TypeScript;
+- make it more modular and possibly generate customized bundles;
+- develop a friendly UI tool to help manage stored palettes.
+
+All help is welcome and anyone can contribute with code, ideas and suggestions.
+
 ## Introduction
 
 This library helps fast prototyping creative visual applications by providing functions to generate and manage color palettes.
