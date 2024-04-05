@@ -273,7 +273,7 @@ class Palette {
   getAnalogous() {
     const newColors = [];
     this.swatches.forEach((swatch) => {
-      const [c1, c2] = this.#getAnalogousColor(swatch.color);
+      const [c1, c2] = this.#getAnalogousColors(swatch.color);
       newColors.push(c1);
       newColors.push(c2);
     });
@@ -585,41 +585,121 @@ class Palette {
     return [].concat(...swatches.map((swatch, index) => Array(Math.ceil(weights[index] * 100)).fill(swatch.color)));
   }
 
-  #getAnalogousColor(col) {
+  /**
+   * Creates and returns an array with two analogous colors of the provided color.
+   * Analogous colors are those that are next to each other on the color wheel.
+   * This private method is intended to be used internally within the Palette class.
+   *
+   * @private
+   * @param {p5.Color} col - The base color for which to find analogous colors.
+   * @return {[p5.Color, p5.Color]} An array containing two p5.Color objects that represent the analogous colors.
+   */
+  #getAnalogousColors(col) {
+    // Save the current drawing state (including the color mode)
     this.P.push();
-    this.P.colorMode(HSB);
-    const c1 = this.P.color((this.P.hue(col) + 330) % 360, this.P.saturation(col), this.P.brightness(col));
-    const c2 = this.P.color((this.P.hue(col) + 30) % 360, this.P.saturation(col), this.P.brightness(col));
+
+    // Change the color mode to HSB for easy manipulation of hue
+    this.P.colorMode(this.P.HSB);
+
+    // Calculate two analogous colors by adjusting the hue
+    // One color is -30 degrees on the color wheel, and the other is +30 degrees
+    const baseHue = this.P.hue(col);
+    const saturation = this.P.saturation(col);
+    const brightness = this.P.brightness(col);
+    const c1 = this.P.color((baseHue + 330) % 360, saturation, brightness); // -30 degrees (equivalent to +330 degrees)
+    const c2 = this.P.color((baseHue + 30) % 360, saturation, brightness); // +30 degrees
+
+    // Restore the previous drawing state, which restores the previous color mode
     this.P.pop();
-    return [c1, c2];
+
+    return [c1, c2]; // Return the analogous colors as an array
   }
 
+  /**
+   * Calculates and returns the complementary color of the given color.
+   * The complementary color is directly across from the base color on the color wheel, which means
+   * the hue is adjusted by 180 degrees. This private method is intended to be used internally
+   * within the Palette class.
+   *
+   * @private
+   * @param {p5.Color} col - The base color for which to find the complementary color.
+   * @return {p5.Color} A p5.Color object that represents the complementary color.
+   */
   #getComplementary(col) {
+    // Save the current drawing state (including the color mode)
     this.P.push();
-    this.P.colorMode(HSB);
-    const complementary = this.P.color((this.P.hue(col) + 180) % 360, this.P.saturation(col), this.P.brightness(col));
+
+    // Change the color mode to HSB for easy manipulation of hue
+    this.P.colorMode(this.P.HSB);
+
+    // Calculate the complementary color by adjusting the hue by 180 degrees
+    const complementaryHue = (this.P.hue(col) + 180) % 360;
+    const complementary = this.P.color(complementaryHue, this.P.saturation(col), this.P.brightness(col));
+
+    // Restore the previous drawing state, which restores the previous color mode
     this.P.pop();
-    return complementary;
+
+    return complementary; // Return the complementary color
   }
 
+  /**
+   * Calculates and returns the two split complementary colors of the given color.
+   * A split complementary color scheme consists of the base color, and two colors that are adjacent to its complement.
+   * This method is private and intended for internal use within the Palette class.
+   *
+   * @private
+   * @param {p5.Color} col The base color for which to find the split complementary colors.
+   * @return {[p5.Color, p5.Color]} An array containing the two p5.Color objects that represent the split complementary colors.
+   */
   #getSplitComplementary(col) {
+    // Save the current drawing state (including the color mode)
     this.P.push();
-    this.P.colorMode(HSB);
-    const c1 = this.P.color((this.P.hue(col) + 150) % 360, this.P.saturation(col), this.P.brightness(col));
-    const c2 = this.P.color((this.P.hue(col) + 210) % 360, this.P.saturation(col), this.P.brightness(col));
+
+    // Change the color mode to HSB to easily adjust the hue value
+    this.P.colorMode(this.P.HSB);
+
+    // Calculate two split complementary colors by adjusting the hue by 150 and 210 degrees
+    const baseHue = this.P.hue(col);
+    const saturation = this.P.saturation(col);
+    const brightness = this.P.brightness(col);
+    const c1 = this.P.color((baseHue + 150 + 360) % 360, saturation, brightness); // Split complementary color 1
+    const c2 = this.P.color((baseHue + 210 + 360) % 360, saturation, brightness); // Split complementary color 2
+
+    // Restore the previous drawing state, which restores the previous color mode
     this.P.pop();
-    return [c1, c2];
+
+    return [c1, c2]; // Return the split complementary colors in an array
   }
 
   #getTetradic(col) {}
 
+  /**
+   * Calculates and returns the two triadic colors of the provided base color.
+   * Triadic colors are evenly spaced around the color wheel, creating a triangle.
+   * This method is private and intended for use within the Palette class.
+   *
+   * @private
+   * @param {p5.Color} col - The base color for which to find triadic colors.
+   * @return {[p5.Color, p5.Color]} An array containing two p5.Color objects representing the triadic colors.
+   */
   #getTriadic(col) {
+    // Save the current drawing state (including the color mode)
     this.P.push();
-    this.P.colorMode(HSB);
-    const c1 = this.P.color((this.P.hue(col) + 120) % 360, this.P.saturation(col), this.P.brightness(col));
-    const c2 = this.P.color((this.P.hue(col) + 240) % 360, this.P.saturation(col), this.P.brightness(col));
+
+    // Change the color mode to HSB to easily adjust hue
+    this.P.colorMode(this.P.HSB);
+
+    // Calculate the triadic colors by rotating the hue by 120 and 240 degrees
+    const baseHue = this.P.hue(col);
+    const saturation = this.P.saturation(col);
+    const brightness = this.P.brightness(col);
+    const c1 = this.P.color((baseHue + 120) % 360, saturation, brightness); // Triadic color 1
+    const c2 = this.P.color((baseHue + 240) % 360, saturation, brightness); // Triadic color 2
+
+    // Restore the previously saved drawing state to retain color mode
     this.P.pop();
-    return [c1, c2];
+
+    return [c1, c2]; // Return an array with the calculated triadic colors
   }
 
   #increaseIndex() {
@@ -628,29 +708,48 @@ class Palette {
     }
   }
 
+  /**
+   * Outputs a horizontal visual representation of the swatches in the Palette to the browser's console.
+   * Each swatch is displayed as a colored block followed by the hex code of the color.
+   * This is a private method intended for debugging purposes within the Palette class.
+   *
+   * @private
+   */
   #logHorizontal() {
-    // REFACTORED
-    let str = "";
-    let values = "";
-    let args = [];
+    let logString = "";
+    let colorValues = [];
+    let styleArgs = [];
+
     for (let i = 0; i < this.size(); i++) {
-      str = str + "%c%s";
-      const value = this.swatches[i].color.toString("#rrggbb");
-      const style = `color: ${value}`;
-      args.push(style);
-      args.push("■■■■■■■■■");
-      values += ` ${value} `;
+      const colorHex = this.swatches[i].color.toString("#rrggbb");
+      const block = "■ ";
+      logString += `%c ${block}`;
+      styleArgs.push(`color: ${colorHex}`);
+      colorValues.push(colorHex);
     }
-    console.log(str, ...args);
-    console.log(`%c%s`, "color:gray", values);
+
+    // Log the color blocks with the respective styles
+    console.log(logString, ...styleArgs);
+
+    // Log the hex values of the colors in gray to differentiate from the colorful blocks
+    console.log(`%c${colorValues.join(" ")}`, "color:gray");
   }
 
+  /**
+   * Outputs a vertical visual representation of the swatches in the Palette to the browser's console.
+   * Each swatch is displayed as a line with a colored block and its hexadecimal code. The block color
+   * is set using the background style to clearly represent the color. This method is private and
+   * intended for debugging purposes within the Palette class.
+   *
+   * @private
+   */
   #logVertical() {
-    // REFACTORED
     this.swatches.forEach((swatch) => {
-      const value = swatch.color.toString("#rrggbb");
-      const style = `background: #222; color: ${value}`;
-      console.log(`%c%s%c %s`, style, "■■■■■■■■■■■■■■■■■■■■", "color:gray", `${value}`);
+      const colorHex = swatch.color.toString("#rrggbb");
+      // The block's background is colored to represent the swatch color, with text providing the hex code.
+      const style = `background: ${colorHex}; color: #222; padding: 0.25em 2em; margin: 2px;`;
+      console.log(`%c %s `, style, " "); // Colored block
+      console.log(`%c${colorHex}`, "color:gray"); // Hex code in gray
     });
   }
 
