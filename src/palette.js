@@ -114,7 +114,7 @@ class Palette {
    * @memberof Palette
    */
   clear() {
-    // REFACTORED
+    
     this.swatches = [];
     this.index = -1;
   }
@@ -248,7 +248,6 @@ class Palette {
    * @memberof Palette
    */
   get(ix) {
-    // REFACTORED
     if (this.index < 0 || this.index >= this.swatches.length) return null;
     if (isNaN(ix)) return this.swatches[this.index].color;
     if (ix < 0 || ix >= this.swatches.length) throw `There's no color with index ${ix} in the palette`;
@@ -262,7 +261,7 @@ class Palette {
    * @memberof Palette
    */
   getColors() {
-    // REFACTORED
+    
     const colors = [];
     this.swatches.forEach((swatch) => {
       colors.push(swatch.color);
@@ -329,7 +328,7 @@ class Palette {
   }
 
   lerp(percent) {
-    // REFACTORED
+    
     let i = Math.floor(percent * (this.swatches.length - 1));
     if (i < 0) return this.swatches[0].color;
     if (i >= this.swatches.length - 1) return this.swatches[this.swatches.length - 1].color;
@@ -343,7 +342,7 @@ class Palette {
   }
 
   lighten() {
-    // REFACTORED
+    
     this.P.push();
     this.P.colorMode(HSB);
     for (let i = 0; i < this.size(); i++) {
@@ -385,7 +384,7 @@ class Palette {
    * @memberof Palette
    */
   previous() {
-    // REFACTORED
+    
     if (--this.index < 0) {
       this.index = this.swatches.length - 1;
     }
@@ -393,7 +392,7 @@ class Palette {
   }
 
   random(fn) {
-    // REFACTORED
+    
     if (this.swatches.length < 1) return undefined;
     const rnd = fn || this.P.random;
     if (!this.weightedDist.length) this.weightedDist = this.#createWeightedDistribution(this.swatches);
@@ -401,7 +400,7 @@ class Palette {
   }
 
   remove(ix) {
-    // REFACTORED
+    
     this.swatches.splice(ix, 1);
     if (this.index >= this.swatches.length) {
       this.index = this.swatches.length - 1;
@@ -416,7 +415,7 @@ class Palette {
    * @memberof Palette
    */
   reset() {
-    // REFACTORED
+    
     this.index = 0;
     return this;
   }
@@ -428,7 +427,7 @@ class Palette {
    * @memberof Palette
    */
   reverse() {
-    // REFACTORED
+    
     this.swatches.reverse();
     return this;
   }
@@ -441,7 +440,7 @@ class Palette {
    * @memberof Palette
    */
   set(ix) {
-    // REFACTORED
+    
     if (ix < 0 || ix >= this.swatches.length) return;
     this.index = ix;
     return this;
@@ -454,7 +453,7 @@ class Palette {
    * @memberof Palette
    */
   setWeights(weights) {
-    // REFACTORED
+    
     if (!weights || weights.length != this.swatches.length) throw "Invalid length for weights array";
     for (let i = 0; i < weights.length; i++) {
       this.swatches[i].weight = weights[i];
@@ -469,7 +468,7 @@ class Palette {
    * @memberof Palette
    */
   size() {
-    // REFACTORED
+    
     return this.swatches.length;
   }
 
@@ -481,7 +480,7 @@ class Palette {
    * @memberof Palette
    */
   shuffle(fn) {
-    // REFACTORED
+    
     const rnd = fn || this.P.random;
     this.swatches = this.swatches.sort(() => rnd() - 0.5);
     return this;
@@ -508,7 +507,6 @@ class Palette {
    * @memberof Palette
    */
   sortByBrightness() {
-    // REFACTORED
     this.swatches = this.swatches.sort((a, b) => {
       return this.P.brightness(a.color) === this.P.brightness(b.color) ? 0 : this.P.brightness(a.color) > this.P.brightness(b.color) ? 1 : -1;
     });
@@ -522,7 +520,6 @@ class Palette {
    * @memberof Palette
    */
   sortByLightness() {
-    // REFACTORED
     this.swatches = this.swatches.sort((a, b) => {
       return this.P.lightness(a.color) === this.P.lightness(b.color) ? 0 : this.P.lightness(a.color) > this.P.lightness(b.color) ? 1 : -1;
     });
@@ -536,7 +533,6 @@ class Palette {
    * @memberof Palette
    */
   sortBySaturation() {
-    // REFACTORED
     this.swatches = this.swatches.sort((a, b) => {
       return this.P.saturation(a.color) === this.P.saturation(b.color) ? 0 : this.P.saturation(a.color) > this.P.saturation(b.color) ? 1 : -1;
     });
@@ -550,12 +546,12 @@ class Palette {
    * @memberof Palette
    */
   toHexString() {
-    // REFACTORED
+    
     return this.toString().replaceAll("#", "");
   }
 
   toString(args) {
-    // REFACTORED
+    
     const separator = (args && args.separator) || "-";
     const format = (args && args.format) || "#rrggbb";
     let str = "";
@@ -577,7 +573,7 @@ class Palette {
   }
 
   #createWeightedDistribution(swatches) {
-    // REFACTORED
+    
     const weights = [];
     swatches.forEach((swatch) => {
       weights.push(swatch.weight);
