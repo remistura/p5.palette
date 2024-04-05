@@ -18,21 +18,32 @@ class Palette {
   /**
    * Add one color or all colors from an existing palette to this palette.
    *
-   * @param {p5.Color|Palette} arg A Color object or a Palette object
+   * @param {p5.Color|Palette} arg - A Color object or a Palette object
    * @return {Palette} Reference to this palette
    * @memberof Palette
    */
   add(arg) {
-    if (!arg) throw new Error("Nothing to add to palette");
-    // REFACTORED
+    if (!arg) throw new Error("Nothing to add to the palette");
+
+    // If arg is another Palette, iterate through its swatches and add them to this palette
     if (arg instanceof Palette) {
-      for (let i = 0; i < arg.size(); i++) {
-        this.swatches.push(new Swatch(arg.get(i)));
+      for (const swatch of arg.swatches) {
+        // Clone the swatch to prevent shared references between palettes.
+        // Assuming we have a 'clone' method on Swatch to create a deep copy
+        this.swatches.push(swatch.clone());
       }
-    } else {
-      this.swatches.push(new Swatch(arg));
     }
+    // If arg is a p5.Color, create a Swatch and add it to the palette
+    else if (arg instanceof this.P.Color) {
+      this.swatches.push(new Swatch(arg));
+    } else {
+      throw new Error("The argument must be a p5.Color or a Palette object");
+    }
+
+    // Update the index if this is the first swatch being added.
     if (this.swatches.length && this.index < 0) this.index = 0;
+
+    // Return the palette instance to allow method chaining.
     return this;
   }
 
@@ -359,7 +370,7 @@ class Palette {
     for (let i = 0; i < this.swatches.length; i++) {
       const swatch = this.swatches[this.index];
       this.#increaseIndex();
-      if (!swatch.skip) {   
+      if (!swatch.skip) {
         return swatch.color;
       }
     }
@@ -556,13 +567,13 @@ class Palette {
     return str;
   }
 
+  // PRIVATE METHODS
+
   #colorsToSwatches(colors) {
-    const swatches = [];
-    colors.forEach((col) => {
-      const swatch = new Swatch(col);
-      swatches.push(swatch);
+    return colors.map((colorValue) => {
+      const color = this.P.color(colorValue);
+      return new Swatch(color);
     });
-    return swatches;
   }
 
   #createWeightedDistribution(swatches) {

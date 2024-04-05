@@ -22,4 +22,14 @@ class Swatch {
     this.weight = weight;
     this.skip = skip;
   }
+
+  /**
+   * Creates a deep copy of this swatch.
+   *
+   * @return {Swatch} A new Swatch instance with the same properties as this swatch.
+   */
+  clone() {
+    const colorCopy = this.color instanceof this.color.constructor ? this.color.toString() : this.color;
+    return new Swatch(colorCopy, this.weight, this.skip);
+  }
 }
