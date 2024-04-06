@@ -57,9 +57,7 @@ class Palette {
     const analogousPalette = this.getAnalogous();
     const newColors = [];
     for (let i = 0; i < this.size(); i++) {
-      newColors.push(analogousPalette.get(i * 2));
-      newColors.push(this.get(i));
-      newColors.push(analogousPalette.get(i * 2 + 1));
+      newColors.push(analogousPalette.get(i * 2), this.get(i), analogousPalette.get(i * 2 + 1));
     }
     this.swatches = this.#colorsToSwatches(newColors);
     return this;
