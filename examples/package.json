@@ -6,10 +6,8 @@
   "directories": {
     "lib": "lib"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "keywords": [],
-  "author": "Gustavo Mandolesi",
+  "author": "Gustavo Mandolesi - Remistura Studio",
   "license": "ISC"
 }
