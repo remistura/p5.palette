@@ -114,7 +114,6 @@ class Palette {
    * @memberof Palette
    */
   clear() {
-    
     this.swatches = [];
     this.index = -1;
   }
@@ -255,28 +254,31 @@ class Palette {
   }
 
   /**
+   * Generates a new Palette instance containing analogous colors for each swatch in the current palette.
+   *
+   * @return {Palette} A new Palette instance filled with analogous colors for each original swatch.
+   */
+  getAnalogous() {
+    const newColors = [];
+    this.swatches.forEach((swatch) => {
+      const [analogousColor1, analogousColor2] = this.#getAnalogousColors(swatch.color);
+      newColors.push(analogousColor1, analogousColor2);
+    });
+    return new Palette(this.P, newColors);
+  }
+
+  /**
    * Return an array containing all colors of this palette.
    *
    * @return {Array} Array of p5.Color objects
    * @memberof Palette
    */
   getColors() {
-    
     const colors = [];
     this.swatches.forEach((swatch) => {
       colors.push(swatch.color);
     });
     return colors;
-  }
-
-  getAnalogous() {
-    const newColors = [];
-    this.swatches.forEach((swatch) => {
-      const [c1, c2] = this.#getAnalogousColors(swatch.color);
-      newColors.push(c1);
-      newColors.push(c2);
-    });
-    return new Palette(this.P, newColors);
   }
 
   getComplementary() {
@@ -328,7 +330,6 @@ class Palette {
   }
 
   lerp(percent) {
-    
     let i = Math.floor(percent * (this.swatches.length - 1));
     if (i < 0) return this.swatches[0].color;
     if (i >= this.swatches.length - 1) return this.swatches[this.swatches.length - 1].color;
@@ -342,7 +343,6 @@ class Palette {
   }
 
   lighten() {
-    
     this.P.push();
     this.P.colorMode(HSB);
     for (let i = 0; i < this.size(); i++) {
@@ -384,7 +384,6 @@ class Palette {
    * @memberof Palette
    */
   previous() {
-    
     if (--this.index < 0) {
       this.index = this.swatches.length - 1;
     }
@@ -392,7 +391,6 @@ class Palette {
   }
 
   random(fn) {
-    
     if (this.swatches.length < 1) return undefined;
     const rnd = fn || this.P.random;
     if (!this.weightedDist.length) this.weightedDist = this.#createWeightedDistribution(this.swatches);
@@ -400,7 +398,6 @@ class Palette {
   }
 
   remove(ix) {
-    
     this.swatches.splice(ix, 1);
     if (this.index >= this.swatches.length) {
       this.index = this.swatches.length - 1;
@@ -415,7 +412,6 @@ class Palette {
    * @memberof Palette
    */
   reset() {
-    
     this.index = 0;
     return this;
   }
@@ -427,7 +423,6 @@ class Palette {
    * @memberof Palette
    */
   reverse() {
-    
     this.swatches.reverse();
     return this;
   }
@@ -440,7 +435,6 @@ class Palette {
    * @memberof Palette
    */
   set(ix) {
-    
     if (ix < 0 || ix >= this.swatches.length) return;
     this.index = ix;
     return this;
@@ -453,7 +447,6 @@ class Palette {
    * @memberof Palette
    */
   setWeights(weights) {
-    
     if (!weights || weights.length != this.swatches.length) throw "Invalid length for weights array";
     for (let i = 0; i < weights.length; i++) {
       this.swatches[i].weight = weights[i];
@@ -468,7 +461,6 @@ class Palette {
    * @memberof Palette
    */
   size() {
-    
     return this.swatches.length;
   }
 
@@ -480,7 +472,6 @@ class Palette {
    * @memberof Palette
    */
   shuffle(fn) {
-    
     const rnd = fn || this.P.random;
     this.swatches = this.swatches.sort(() => rnd() - 0.5);
     return this;
@@ -546,12 +537,10 @@ class Palette {
    * @memberof Palette
    */
   toHexString() {
-    
     return this.toString().replaceAll("#", "");
   }
 
   toString(args) {
-    
     const separator = (args && args.separator) || "-";
     const format = (args && args.format) || "#rrggbb";
     let str = "";
@@ -573,7 +562,6 @@ class Palette {
   }
 
   #createWeightedDistribution(swatches) {
-    
     const weights = [];
     swatches.forEach((swatch) => {
       weights.push(swatch.weight);
