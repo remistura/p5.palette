@@ -32,14 +32,14 @@ module.exports = function (grunt) {
         ],
       },
     },
-    jsdoc: {
-      dist: {
-        src: ["src/*.js", "test/*.js"],
-        options: {
-          destination: "doc/jsdoc",
-        },
-      },
-    },
+    // jsdoc: {
+    //   dist: {
+    //     src: ["src/*.js", "test/*.js"],
+    //     options: {
+    //       destination: "doc/jsdoc",
+    //     },
+    //   },
+    // },
     uglify: {
       options: {
         compress: {

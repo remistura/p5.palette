@@ -48,21 +48,20 @@ class Palette {
   }
 
   /**
-   * Adds two analogous colors for each color of this palette, inserting them
-   * before and after the corresponding color index.
+   * Enriches each color in the palette by adding two analogous colors,
+   * one before and one after, effectively tripling the palette's size.
    *
-   * @return {Palette} Reference to this palette
-   * @memberof Palette
+   * @return {Palette} A reference to this palette, allowing for chained method calls.
    */
   addAnalogousColors() {
-    const analogous = this.getAnalogous();
+    const analogousPalette = this.getAnalogous();
     const newColors = [];
     for (let i = 0; i < this.size(); i++) {
-      newColors.push(analogous.get(i * 2));
+      newColors.push(analogousPalette.get(i * 2));
       newColors.push(this.get(i));
-      newColors.push(analogous.get(i * 2 + 1));
+      newColors.push(analogousPalette.get(i * 2 + 1));
     }
-    this.colors = Array.from(newColors);
+    this.swatches = this.#colorsToSwatches(newColors);
     return this;
   }
 
@@ -249,7 +248,7 @@ class Palette {
   get(ix) {
     if (this.index < 0 || this.index >= this.swatches.length) return null;
     if (isNaN(ix)) return this.swatches[this.index].color;
-    if (ix < 0 || ix >= this.swatches.length) throw `There's no color with index ${ix} in the palette`;
+    if (ix < 0 || ix >= this.swatches.length) throw new Error(`There's no color with index ${ix} in the palette`);
     return this.swatches[ix].color;
   }
 

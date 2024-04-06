@@ -273,44 +273,54 @@ class Palette {
     this.weightedDist = [];
   }
 
-  //----------------------------------------------------------------------------
   /**
    * Add one color or all colors from an existing palette to this palette.
    *
-   * @param {p5.Color|Palette} arg A Color object or a Palette object
+   * @param {p5.Color|Palette} arg - A Color object or a Palette object
    * @return {Palette} Reference to this palette
    * @memberof Palette
    */
   add(arg) {
-    if (!arg) throw new Error("Nothing to add to palette");
-    // REFACTORED
+    if (!arg) throw new Error("Nothing to add to the palette");
+
+    // If arg is another Palette, iterate through its swatches and add them to this palette
     if (arg instanceof Palette) {
-      for (let i = 0; i < arg.size(); i++) {
-        this.swatches.push(new Swatch(arg.get(i)));
+      for (const swatch of arg.swatches) {
+        // Clone the swatch to prevent shared references between palettes.
+        // Assuming we have a 'clone' method on Swatch to create a deep copy
+        this.swatches.push(swatch.clone());
       }
-    } else {
-      this.swatches.push(new Swatch(arg));
     }
+    // If arg is a p5.Color, create a Swatch and add it to the palette
+    else if (arg instanceof this.P.Color) {
+      this.swatches.push(new Swatch(arg));
+    } else {
+      throw new Error("The argument must be a p5.Color or a Palette object");
+    }
+
+    // Update the index if this is the first swatch being added.
     if (this.swatches.length && this.index < 0) this.index = 0;
+
+    // Return the palette instance to allow method chaining.
     return this;
   }
 
   /**
-   * Adds two analogous colors for each color of this palette, inserting them
-   * before and after the corresponding color index.
+   * Enriches each color in the palette by adding two analogous colors,
+   * one before and one after, effectively tripling the palette's size.
    *
-   * @return {Palette} Reference to this palette
-   * @memberof Palette
+   * @return {Palette} A reference to this palette, allowing for chained method calls.
    */
   addAnalogousColors() {
-    const analogous = this.getAnalogous();
+    const analogousPalette = this.getAnalogous();
     const newColors = [];
     for (let i = 0; i < this.size(); i++) {
-      newColors.push(analogous.get(i * 2));
+      newColors.push(analogousPalette.get(i * 2));
       newColors.push(this.get(i));
-      newColors.push(analogous.get(i * 2 + 1));
+      newColors.push(analogousPalette.get(i * 2 + 1));
     }
-    this.colors = Array.from(newColors);
+    this.swatches = this.#colorsToSwatches(newColors);
+    // this.colors = Array.from(newColors); //AQUI
     return this;
   }
 
@@ -362,7 +372,6 @@ class Palette {
    * @memberof Palette
    */
   clear() {
-    // REFACTORED
     this.swatches = [];
     this.index = -1;
   }
@@ -496,11 +505,24 @@ class Palette {
    * @memberof Palette
    */
   get(ix) {
-    // REFACTORED
     if (this.index < 0 || this.index >= this.swatches.length) return null;
     if (isNaN(ix)) return this.swatches[this.index].color;
-    if (ix < 0 || ix >= this.swatches.length) throw `There's no color with index ${ix} in the palette`;
+    if (ix < 0 || ix >= this.swatches.length) throw new Error(`There's no color with index ${ix} in the palette`);
     return this.swatches[ix].color;
+  }
+
+  /**
+   * Generates a new Palette instance containing analogous colors for each swatch in the current palette.
+   *
+   * @return {Palette} A new Palette instance filled with analogous colors for each original swatch.
+   */
+  getAnalogous() {
+    const newColors = [];
+    this.swatches.forEach((swatch) => {
+      const [analogousColor1, analogousColor2] = this.#getAnalogousColors(swatch.color);
+      newColors.push(analogousColor1, analogousColor2);
+    });
+    return new Palette(this.P, newColors);
   }
 
   /**
@@ -510,22 +532,11 @@ class Palette {
    * @memberof Palette
    */
   getColors() {
-    // REFACTORED
     const colors = [];
     this.swatches.forEach((swatch) => {
       colors.push(swatch.color);
     });
     return colors;
-  }
-
-  getAnalogous() {
-    const newColors = [];
-    this.swatches.forEach((swatch) => {
-      const [c1, c2] = this.#getAnalogousColor(swatch.color);
-      newColors.push(c1);
-      newColors.push(c2);
-    });
-    return new Palette(this.P, newColors);
   }
 
   getComplementary() {
@@ -577,7 +588,6 @@ class Palette {
   }
 
   lerp(percent) {
-    // REFACTORED
     let i = Math.floor(percent * (this.swatches.length - 1));
     if (i < 0) return this.swatches[0].color;
     if (i >= this.swatches.length - 1) return this.swatches[this.swatches.length - 1].color;
@@ -591,7 +601,6 @@ class Palette {
   }
 
   lighten() {
-    // REFACTORED
     this.P.push();
     this.P.colorMode(HSB);
     for (let i = 0; i < this.size(); i++) {
@@ -618,7 +627,7 @@ class Palette {
     for (let i = 0; i < this.swatches.length; i++) {
       const swatch = this.swatches[this.index];
       this.#increaseIndex();
-      if (!swatch.skip) {   
+      if (!swatch.skip) {
         return swatch.color;
       }
     }
@@ -633,7 +642,6 @@ class Palette {
    * @memberof Palette
    */
   previous() {
-    // REFACTORED
     if (--this.index < 0) {
       this.index = this.swatches.length - 1;
     }
@@ -641,7 +649,6 @@ class Palette {
   }
 
   random(fn) {
-    // REFACTORED
     if (this.swatches.length < 1) return undefined;
     const rnd = fn || this.P.random;
     if (!this.weightedDist.length) this.weightedDist = this.#createWeightedDistribution(this.swatches);
@@ -649,7 +656,6 @@ class Palette {
   }
 
   remove(ix) {
-    // REFACTORED
     this.swatches.splice(ix, 1);
     if (this.index >= this.swatches.length) {
       this.index = this.swatches.length - 1;
@@ -664,7 +670,6 @@ class Palette {
    * @memberof Palette
    */
   reset() {
-    // REFACTORED
     this.index = 0;
     return this;
   }
@@ -676,7 +681,6 @@ class Palette {
    * @memberof Palette
    */
   reverse() {
-    // REFACTORED
     this.swatches.reverse();
     return this;
   }
@@ -689,7 +693,6 @@ class Palette {
    * @memberof Palette
    */
   set(ix) {
-    // REFACTORED
     if (ix < 0 || ix >= this.swatches.length) return;
     this.index = ix;
     return this;
@@ -702,7 +705,6 @@ class Palette {
    * @memberof Palette
    */
   setWeights(weights) {
-    // REFACTORED
     if (!weights || weights.length != this.swatches.length) throw "Invalid length for weights array";
     for (let i = 0; i < weights.length; i++) {
       this.swatches[i].weight = weights[i];
@@ -717,7 +719,6 @@ class Palette {
    * @memberof Palette
    */
   size() {
-    // REFACTORED
     return this.swatches.length;
   }
 
@@ -729,7 +730,6 @@ class Palette {
    * @memberof Palette
    */
   shuffle(fn) {
-    // REFACTORED
     const rnd = fn || this.P.random;
     this.swatches = this.swatches.sort(() => rnd() - 0.5);
     return this;
@@ -756,7 +756,6 @@ class Palette {
    * @memberof Palette
    */
   sortByBrightness() {
-    // REFACTORED
     this.swatches = this.swatches.sort((a, b) => {
       return this.P.brightness(a.color) === this.P.brightness(b.color) ? 0 : this.P.brightness(a.color) > this.P.brightness(b.color) ? 1 : -1;
     });
@@ -770,7 +769,6 @@ class Palette {
    * @memberof Palette
    */
   sortByLightness() {
-    // REFACTORED
     this.swatches = this.swatches.sort((a, b) => {
       return this.P.lightness(a.color) === this.P.lightness(b.color) ? 0 : this.P.lightness(a.color) > this.P.lightness(b.color) ? 1 : -1;
     });
@@ -784,7 +782,6 @@ class Palette {
    * @memberof Palette
    */
   sortBySaturation() {
-    // REFACTORED
     this.swatches = this.swatches.sort((a, b) => {
       return this.P.saturation(a.color) === this.P.saturation(b.color) ? 0 : this.P.saturation(a.color) > this.P.saturation(b.color) ? 1 : -1;
     });
@@ -798,12 +795,10 @@ class Palette {
    * @memberof Palette
    */
   toHexString() {
-    // REFACTORED
     return this.toString().replaceAll("#", "");
   }
 
   toString(args) {
-    // REFACTORED
     const separator = (args && args.separator) || "-";
     const format = (args && args.format) || "#rrggbb";
     let str = "";
@@ -815,17 +810,16 @@ class Palette {
     return str;
   }
 
+  // PRIVATE METHODS
+
   #colorsToSwatches(colors) {
-    const swatches = [];
-    colors.forEach((col) => {
-      const swatch = new Swatch(col);
-      swatches.push(swatch);
+    return colors.map((colorValue) => {
+      const color = this.P.color(colorValue);
+      return new Swatch(color);
     });
-    return swatches;
   }
 
   #createWeightedDistribution(swatches) {
-    // REFACTORED
     const weights = [];
     swatches.forEach((swatch) => {
       weights.push(swatch.weight);
@@ -833,41 +827,121 @@ class Palette {
     return [].concat(...swatches.map((swatch, index) => Array(Math.ceil(weights[index] * 100)).fill(swatch.color)));
   }
 
-  #getAnalogousColor(col) {
+  /**
+   * Creates and returns an array with two analogous colors of the provided color.
+   * Analogous colors are those that are next to each other on the color wheel.
+   * This private method is intended to be used internally within the Palette class.
+   *
+   * @private
+   * @param {p5.Color} col - The base color for which to find analogous colors.
+   * @return {[p5.Color, p5.Color]} An array containing two p5.Color objects that represent the analogous colors.
+   */
+  #getAnalogousColors(col) {
+    // Save the current drawing state (including the color mode)
     this.P.push();
-    this.P.colorMode(HSB);
-    const c1 = this.P.color((this.P.hue(col) + 330) % 360, this.P.saturation(col), this.P.brightness(col));
-    const c2 = this.P.color((this.P.hue(col) + 30) % 360, this.P.saturation(col), this.P.brightness(col));
+
+    // Change the color mode to HSB for easy manipulation of hue
+    this.P.colorMode(this.P.HSB);
+
+    // Calculate two analogous colors by adjusting the hue
+    // One color is -30 degrees on the color wheel, and the other is +30 degrees
+    const baseHue = this.P.hue(col);
+    const saturation = this.P.saturation(col);
+    const brightness = this.P.brightness(col);
+    const c1 = this.P.color((baseHue + 330) % 360, saturation, brightness); // -30 degrees (equivalent to +330 degrees)
+    const c2 = this.P.color((baseHue + 30) % 360, saturation, brightness); // +30 degrees
+
+    // Restore the previous drawing state, which restores the previous color mode
     this.P.pop();
-    return [c1, c2];
+
+    return [c1, c2]; // Return the analogous colors as an array
   }
 
+  /**
+   * Calculates and returns the complementary color of the given color.
+   * The complementary color is directly across from the base color on the color wheel, which means
+   * the hue is adjusted by 180 degrees. This private method is intended to be used internally
+   * within the Palette class.
+   *
+   * @private
+   * @param {p5.Color} col - The base color for which to find the complementary color.
+   * @return {p5.Color} A p5.Color object that represents the complementary color.
+   */
   #getComplementary(col) {
+    // Save the current drawing state (including the color mode)
     this.P.push();
-    this.P.colorMode(HSB);
-    const complementary = this.P.color((this.P.hue(col) + 180) % 360, this.P.saturation(col), this.P.brightness(col));
+
+    // Change the color mode to HSB for easy manipulation of hue
+    this.P.colorMode(this.P.HSB);
+
+    // Calculate the complementary color by adjusting the hue by 180 degrees
+    const complementaryHue = (this.P.hue(col) + 180) % 360;
+    const complementary = this.P.color(complementaryHue, this.P.saturation(col), this.P.brightness(col));
+
+    // Restore the previous drawing state, which restores the previous color mode
     this.P.pop();
-    return complementary;
+
+    return complementary; // Return the complementary color
   }
 
+  /**
+   * Calculates and returns the two split complementary colors of the given color.
+   * A split complementary color scheme consists of the base color, and two colors that are adjacent to its complement.
+   * This method is private and intended for internal use within the Palette class.
+   *
+   * @private
+   * @param {p5.Color} col The base color for which to find the split complementary colors.
+   * @return {[p5.Color, p5.Color]} An array containing the two p5.Color objects that represent the split complementary colors.
+   */
   #getSplitComplementary(col) {
+    // Save the current drawing state (including the color mode)
     this.P.push();
-    this.P.colorMode(HSB);
-    const c1 = this.P.color((this.P.hue(col) + 150) % 360, this.P.saturation(col), this.P.brightness(col));
-    const c2 = this.P.color((this.P.hue(col) + 210) % 360, this.P.saturation(col), this.P.brightness(col));
+
+    // Change the color mode to HSB to easily adjust the hue value
+    this.P.colorMode(this.P.HSB);
+
+    // Calculate two split complementary colors by adjusting the hue by 150 and 210 degrees
+    const baseHue = this.P.hue(col);
+    const saturation = this.P.saturation(col);
+    const brightness = this.P.brightness(col);
+    const c1 = this.P.color((baseHue + 150 + 360) % 360, saturation, brightness); // Split complementary color 1
+    const c2 = this.P.color((baseHue + 210 + 360) % 360, saturation, brightness); // Split complementary color 2
+
+    // Restore the previous drawing state, which restores the previous color mode
     this.P.pop();
-    return [c1, c2];
+
+    return [c1, c2]; // Return the split complementary colors in an array
   }
 
   #getTetradic(col) {}
 
+  /**
+   * Calculates and returns the two triadic colors of the provided base color.
+   * Triadic colors are evenly spaced around the color wheel, creating a triangle.
+   * This method is private and intended for use within the Palette class.
+   *
+   * @private
+   * @param {p5.Color} col - The base color for which to find triadic colors.
+   * @return {[p5.Color, p5.Color]} An array containing two p5.Color objects representing the triadic colors.
+   */
   #getTriadic(col) {
+    // Save the current drawing state (including the color mode)
     this.P.push();
-    this.P.colorMode(HSB);
-    const c1 = this.P.color((this.P.hue(col) + 120) % 360, this.P.saturation(col), this.P.brightness(col));
-    const c2 = this.P.color((this.P.hue(col) + 240) % 360, this.P.saturation(col), this.P.brightness(col));
+
+    // Change the color mode to HSB to easily adjust hue
+    this.P.colorMode(this.P.HSB);
+
+    // Calculate the triadic colors by rotating the hue by 120 and 240 degrees
+    const baseHue = this.P.hue(col);
+    const saturation = this.P.saturation(col);
+    const brightness = this.P.brightness(col);
+    const c1 = this.P.color((baseHue + 120) % 360, saturation, brightness); // Triadic color 1
+    const c2 = this.P.color((baseHue + 240) % 360, saturation, brightness); // Triadic color 2
+
+    // Restore the previously saved drawing state to retain color mode
     this.P.pop();
-    return [c1, c2];
+
+    return [c1, c2]; // Return an array with the calculated triadic colors
   }
 
   #increaseIndex() {
@@ -876,29 +950,48 @@ class Palette {
     }
   }
 
+  /**
+   * Outputs a horizontal visual representation of the swatches in the Palette to the browser's console.
+   * Each swatch is displayed as a colored block followed by the hex code of the color.
+   * This is a private method intended for debugging purposes within the Palette class.
+   *
+   * @private
+   */
   #logHorizontal() {
-    // REFACTORED
-    let str = "";
-    let values = "";
-    let args = [];
+    let logString = "";
+    let colorValues = [];
+    let styleArgs = [];
+
     for (let i = 0; i < this.size(); i++) {
-      str = str + "%c%s";
-      const value = this.swatches[i].color.toString("#rrggbb");
-      const style = `color: ${value}`;
-      args.push(style);
-      args.push("■■■■■■■■■");
-      values += ` ${value} `;
+      const colorHex = this.swatches[i].color.toString("#rrggbb");
+      const block = "■ ";
+      logString += `%c ${block}`;
+      styleArgs.push(`color: ${colorHex}`);
+      colorValues.push(colorHex);
     }
-    console.log(str, ...args);
-    console.log(`%c%s`, "color:gray", values);
+
+    // Log the color blocks with the respective styles
+    console.log(logString, ...styleArgs);
+
+    // Log the hex values of the colors in gray to differentiate from the colorful blocks
+    console.log(`%c${colorValues.join(" ")}`, "color:gray");
   }
 
+  /**
+   * Outputs a vertical visual representation of the swatches in the Palette to the browser's console.
+   * Each swatch is displayed as a line with a colored block and its hexadecimal code. The block color
+   * is set using the background style to clearly represent the color. This method is private and
+   * intended for debugging purposes within the Palette class.
+   *
+   * @private
+   */
   #logVertical() {
-    // REFACTORED
     this.swatches.forEach((swatch) => {
-      const value = swatch.color.toString("#rrggbb");
-      const style = `background: #222; color: ${value}`;
-      console.log(`%c%s%c %s`, style, "■■■■■■■■■■■■■■■■■■■■", "color:gray", `${value}`);
+      const colorHex = swatch.color.toString("#rrggbb");
+      // The block's background is colored to represent the swatch color, with text providing the hex code.
+      const style = `background: ${colorHex}; color: #222; padding: 0.25em 2em; margin: 2px;`;
+      console.log(`%c %s `, style, " "); // Colored block
+      console.log(`%c${colorHex}`, "color:gray"); // Hex code in gray
     });
   }
 
@@ -908,11 +1001,37 @@ class Palette {
 }
 
 
+/**
+ * Represents a single color swatch within a palette.
+ * Each swatch has a color and additional properties that determine its weighting
+ * for random selection and whether it should be skipped in certain operations.
+ *
+ * @class Swatch
+ */
 class Swatch {
-  constructor(color, weight, skip) {
-    if (!color) throw "A swatch needs a color!";
+  /**
+   * Creates an instance of Swatch.
+   *
+   * @constructor
+   * @param {p5.Color} color - The color associated with this swatch.
+   * @param {number} [weight=1] - The weight of the color, used for random selection.
+   * @param {boolean} [skip=false] - Whether to skip this color in certain operations.
+   * @throws Will throw an error if the `color` parameter is not provided.
+   */
+  constructor(color, weight = 1, skip = false) {
+    if (!color) throw new Error("A swatch needs a color!");
     this.color = color;
-    this.weight = weight || 1;
-    this.skip = skip || false;
+    this.weight = weight;
+    this.skip = skip;
+  }
+
+  /**
+   * Creates a deep copy of this swatch.
+   *
+   * @return {Swatch} A new Swatch instance with the same properties as this swatch.
+   */
+  clone() {
+    const colorCopy = this.color instanceof this.color.constructor ? this.color.toString() : this.color;
+    return new Swatch(colorCopy, this.weight, this.skip);
   }
 }

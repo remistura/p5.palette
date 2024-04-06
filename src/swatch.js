@@ -1,8 +1,7 @@
 /**
  * Represents a single color swatch within a palette.
- * Each swatch has a color and additional properties that
- * determine its weighting for random selection and whether
- * it should be skipped in certain operations.
+ * Each swatch has a color and additional properties that determine its weighting
+ * for random selection and whether it should be skipped in certain operations.
  *
  * @class Swatch
  */
