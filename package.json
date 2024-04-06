@@ -5,14 +5,13 @@
     "main": "dist/p5.palette.min.js",
     "scripts": {},
     "keywords": [],
-    "author": "Gustavo Mandolesi",
+    "author": "Gustavo Mandolesi - Remistura Studio",
     "license": "MIT",
     "devDependencies": {
-        "grunt": "^1.5.3",
+        "grunt": "^1.6.1",
         "grunt-contrib-concat": "^2.1.0",
         "grunt-contrib-copy": "^1.0.0",
         "grunt-contrib-uglify": "^5.2.2",
-        "grunt-contrib-watch": "^1.1.0",
-        "grunt-jsdoc": "^2.4.1"
+        "grunt-contrib-watch": "^1.1.0"
     }
 }
