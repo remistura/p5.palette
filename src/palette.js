@@ -80,15 +80,20 @@ class Palette {
     return this;
   }
 
+  /**
+   * Enriches the palette by adding one split complementary color scheme for each existing color.
+   * The split complementary colors are inserted immediately before and after their corresponding original color,
+   * effectively tripling the palette's size.
+   *
+   * @return {Palette} A reference to this palette, allowing for chained method calls.
+   */
   addSplitComplementaryColors() {
     const complementary = this.getSplitComplementary();
     const newColors = [];
     for (let i = 0; i < this.size(); i++) {
-      newColors.push(complementary.get(i * 2));
-      newColors.push(this.get(i));
-      newColors.push(complementary.get(i * 2 + 1));
+      newColors.push(complementary.get(i * 2), this.get(i), complementary.get(i * 2 + 1));
     }
-    this.colors = Array.from(newColors);
+    this.swatches = this.#colorsToSwatches(newColors);
     return this;
   }
 
@@ -290,12 +295,17 @@ class Palette {
     return new Palette(this.P, newColors);
   }
 
+  /**
+   * Constructs a new Palette instance containing the split complementary colors
+   * of each swatch in the current palette.
+   *
+   * @return {Palette} A new Palette instance containing the split complementary colors of each original swatch.
+   */
   getSplitComplementary() {
     const newColors = [];
-    this.colors.forEach((col) => {
-      const [s1, s2] = this.#getSplitComplementary(col);
-      newColors.push(s1);
-      newColors.push(s2);
+    this.swatches.forEach((swatch) => {
+      const [s1, s2] = this.#getSplitComplementary(swatch.color);
+      newColors.push(s1, s2);
     });
     return new Palette(this.P, newColors);
   }

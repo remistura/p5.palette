@@ -1,18 +1,20 @@
 function setup() {
-  createCanvas(280, 255);
+  createCanvas(770, 250);
+  background(0);
 }
 
 function draw() {
-  background(127);
+  const palette1 = createPalette("fff708");
+  palette1.draw({ x: 10, y: 10 });
 
-  let palette = createPalette("fff708");
-  palette.draw({ x: 10, y: 10, width: 33 });
-  palette.addSplitComplementaryColors();
-  palette.draw({ x: 10, y: 70, width: 66 });
+  palette1.addSplitComplementaryColors();
+  palette1.draw({ x: 10, y: 70 });
 
-  palette = createPalette("fff275-ff8c42-ff3c38-a23e48-6c8ead");
-  palette.draw({ x: 10, y: 130 });
-  palette.addSplitComplementaryColors();
-  palette.draw({ x: 10, y: 190, width: 200 });
+  const palette2 = createPalette("fff275-ff8c42-ff3c38-a23e48-6c8ead");
+  palette2.draw({ x: 10, y: 130 });
+  
+  palette2.addSplitComplementaryColors();
+  palette2.draw({ x: 10, y: 190 });
+
   noLoop();
 }
