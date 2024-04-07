@@ -32,14 +32,6 @@ module.exports = function (grunt) {
         ],
       },
     },
-    jsdoc: {
-      dist: {
-        src: ["src/*.js", "test/*.js"],
-        options: {
-          destination: "doc/jsdoc",
-        },
-      },
-    },
     uglify: {
       options: {
         compress: {
@@ -67,7 +59,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-copy");
   grunt.loadNpmTasks("grunt-contrib-watch");
-  grunt.loadNpmTasks("grunt-jsdoc");
 
   // Default task(s).
   grunt.registerTask("default", ["concat", "uglify", "copy"]);
