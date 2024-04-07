@@ -1,6 +1,6 @@
 {
     "name": "p5.palette",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "A p5.js library to manage color palettes",
     "main": "dist/p5.palette.min.js",
     "scripts": {},
