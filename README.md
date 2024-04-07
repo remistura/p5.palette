@@ -24,7 +24,7 @@ The library allows you to create and manipulate color palettes in a very dynamic
 
 ## Installation
 
-Please download the latest `p5.palette.min.js` release from the [lib](https://github.com/remistura/p5.palette/tree/main/lib) directory.
+Please download the latest `p5.palette.min.js` release from the [dist](https://github.com/remistura/p5.palette/tree/main/dist) directory.
 
 ```html
 <script type="text/javascript" src="path-to/p5.min.js"></script>

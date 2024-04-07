@@ -11,7 +11,7 @@ module.exports = function (grunt) {
       },
       dist: {
         src: ["src/index.js", "src/constants.js", "src/palette.js", "src/swatch.js"],
-        dest: "lib/<%= pkg.name %>.js",
+        dest: "dist/<%= pkg.name %>.js",
       },
     },
     copy: {
@@ -19,13 +19,13 @@ module.exports = function (grunt) {
         files: [
           {
             expand: true,
-            cwd: "lib/",
+            cwd: "dist/",
             src: ["p5.palette.min.js"],
             dest: "examples/public/lib",
           },
           {
             expand: true,
-            cwd: "lib/",
+            cwd: "dist/",
             src: ["p5.palette.js"],
             dest: "examples/public/lib",
           },
@@ -42,8 +42,8 @@ module.exports = function (grunt) {
         banner: '/*! <%= pkg.name %>.js v<%= pkg.version %> - <%= grunt.template.today("mmmm dd, yyyy") %> - License: <%= pkg.license %> */ ',
       },
       build: {
-        src: "lib/<%= pkg.name %>.js",
-        dest: "lib/<%= pkg.name %>.min.js",
+        src: "dist/<%= pkg.name %>.js",
+        dest: "dist/<%= pkg.name %>.min.js",
       },
     },    
     watch: {
