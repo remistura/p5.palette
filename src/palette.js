@@ -19,22 +19,16 @@ class Palette {
    * Add one color or all colors from an existing palette to this palette.
    *
    * @param {p5.Color|Palette} arg - A Color object or a Palette object
-   * @return {Palette} Reference to this palette
-   * @memberof Palette
+   * @return {Palette} Reference to this palette, allowing for chained method calls.
    */
   add(arg) {
     if (!arg) throw new Error("Nothing to add to the palette");
 
-    // If arg is another Palette, iterate through its swatches and add them to this palette
     if (arg instanceof Palette) {
       for (const swatch of arg.swatches) {
-        // Clone the swatch to prevent shared references between palettes.
-        // Assuming we have a 'clone' method on Swatch to create a deep copy
         this.swatches.push(swatch.clone());
       }
-    }
-    // If arg is a p5.Color, create a Swatch and add it to the palette
-    else if (arg instanceof p5.Color) {
+    } else if (arg instanceof p5.Color) {
       this.swatches.push(new Swatch(arg));
     } else {
       throw new Error("The argument must be a p5.Color or a Palette object");
