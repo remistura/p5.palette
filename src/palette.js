@@ -314,6 +314,7 @@ class Palette {
     return new Palette(this.P, newColors);
   }
 
+  
   insertGradients(amount = 5, loop = false) {
     const palettes = [];
     for (let i = 0; i < this.size() - 1; i++) {
@@ -334,6 +335,17 @@ class Palette {
     return this;
   }
 
+  /**
+   * Interpolates between the colors of the palette.
+   * The `percent` parameter should be a value between 0 and 1.
+   * If the value is less than 0, the first color is returned.
+   * If the value is greater than 1, the last color is returned.
+   * If the palette has only one color, that color is returned regardless of the value of `percent`.
+   * If the palette has no colors, a null value is returned.
+   *
+   * @param {number} percent - The percentage of interpolation between the colors.
+   * @return {p5.Color} The interpolated color.
+   */
   lerp(percent) {
     let i = Math.floor(percent * (this.swatches.length - 1));
     if (i < 0) return this.swatches[0].color;
@@ -347,6 +359,11 @@ class Palette {
     );
   }
 
+  /**
+   * Lightens all colors of this palette.
+   *
+   * @return {Palette} The palette with lightened colors.
+   */
   lighten() {
     this.P.push();
     this.P.colorMode(HSB);
@@ -359,6 +376,11 @@ class Palette {
     return this;
   }
 
+  /**
+   * Outputs a visual representation of the swatches in the Palette to the browser's console.
+   *
+   * @param {boolean} [horizontal=true] - Whether to log the colors horizontally or vertically.
+   */
   log(horizontal = true) {
     horizontal ? this.#logHorizontal() : this.#logVertical();
   }
@@ -395,6 +417,16 @@ class Palette {
     return this.swatches[this.index].color;
   }
 
+  /**
+   * Returns a random color from the palette.
+   * If the palette is empty, it returns undefined.
+   * If a random function is provided, it will be used instead of Math.random().
+   * The random function should return a value between 0 and 1.
+   * The random color is selected based on the weights of the colors in the palette.
+   *
+   * @param {Function} [fn] - A random function that returns a value between 0 and 1.
+   * @return {p5.Color} A random color from the palette.
+   */
   random(fn) {
     if (this.swatches.length < 1) return undefined;
     const rnd = fn || this.P.random;
@@ -402,6 +434,12 @@ class Palette {
     return this.weightedDist[Math.floor(rnd() * this.weightedDist.length)];
   }
 
+  /**
+   * Removes the color at the specified index.
+   *
+   * @param {*} ix The index of the color to remove.
+   * @return {Palette} The palette with the color removed.
+   */
   remove(ix) {
     this.swatches.splice(ix, 1);
     if (this.index >= this.swatches.length) {
@@ -437,7 +475,6 @@ class Palette {
    *
    * @param {*} ix
    * @return {*}
-   * @memberof Palette
    */
   set(ix) {
     if (ix < 0 || ix >= this.swatches.length) return;
@@ -446,10 +483,9 @@ class Palette {
   }
 
   /**
+   * Sets the weights of the colors in the palette.
    *
-   *
-   * @param {*} weights
-   * @memberof Palette
+   * @param {number[]} weights - An array of weights for each color in the palette.
    */
   setWeights(weights) {
     if (!weights || weights.length != this.swatches.length) throw "Invalid length for weights array";
@@ -460,10 +496,9 @@ class Palette {
   }
 
   /**
-   * Return the number of colors the palette has.
+   * Returns the number of colors the palette has.
    *
    * @return {number} Number of colors
-   * @memberof Palette
    */
   size() {
     return this.swatches.length;
@@ -482,16 +517,30 @@ class Palette {
     return this;
   }
 
+  /**
+   * Skip the color at the specified index.
+   *
+   * @param {*} index The index of the color to skip.
+   */
   skip(index) {
     if (!this.#validIndex(index)) throw "Invalid color index";
     this.swatches[index].skip = true;
   }
 
+  /**
+   * Marks a color as not skipped.
+   *
+   * @param {*} index
+   * @memberof Palette
+   */
   unskip(index) {
     if (!this.#validIndex(index)) throw "Invalid color index";
     this.swatches[index].skip = false;
   }
 
+  /**
+   * Marks all colors as not skipped.
+   */
   unskipAll() {
     this.swatches.forEach((swatch) => (swatch.skip = false));
   }
@@ -545,6 +594,17 @@ class Palette {
     return this.toString().replaceAll("#", "");
   }
 
+  /**
+   * Returns a string representation of the palette's colors.
+   * The colors are separated by a dash by default, but a custom separator can be provided.
+   * The format of the colors can be specified as well, using the standard p5.js color format strings.
+   * The default format is "#rrggbb".
+   *
+   * @param {Object} args - An object with optional properties for the string representation.
+   * @param {string} [args.separator="-"] - The separator between the colors.
+   * @param {string} [args.format="#rrggbb"] - The format of the colors.
+   * @return {string} A string representation of the palette's colors.
+   */
   toString(args) {
     const separator = (args && args.separator) || "-";
     const format = (args && args.format) || "#rrggbb";
